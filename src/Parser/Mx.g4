@@ -3,20 +3,21 @@ import MxLexerRule;
 
 program : (varDef|funcDef|classDef)*EOF;
 
-varDef : type varDefUnit (Comma varDefUnit)* Semi;
-type:typeName ('['']')*;
-typeName:baseType|Identifier;
-baseType:Int|Bool|Str;
+/*========================Def==========================*/
 
-varDefUnit:Identifier (Assign expr)?;
+varDef : type varDefUnit (Comma varDefUnit)* Semi;
+type : typeName ('['']')*;
+typeName : Int|Bool|Str|Identifier;
+
+varDefUnit : Identifier (Assign expr)?;
 
 funcDef : returnType Identifier '(' parameterList? ')' '{' suite '}';  //parameterList? =>int main(){}
-returnType:type|Void;
-suite:statement*;
-parameterList:type Identifier (Comma type Identifier)*;
+returnType : type|Void;
+suite : statement*;
+parameterList : type Identifier (Comma type Identifier)*;
 
 classDef : Class Identifier '{' (varDef|classBuild|funcDef)* '}' Semi;
-classBuild:Identifier '(' ')' '{' suite '}';
+classBuild : Identifier '(' ')' '{' suite '}';
 
 
 /*======================statement=========================*/
@@ -27,23 +28,23 @@ statement
 | breakStmt | continueStmt | returnStmt
 | exprStmt;
 
-ifStmt: If '(' expr ')' statement (Else statement)?;
+ifStmt : If '(' expr ')' statement (Else statement)?;
 
-whileStmt: While '(' expr ')' statement;
+whileStmt : While '(' expr ')' statement;
 
-forStmt: For '(' forInit exprStmt expr? ')' statement;
-forInit: varDef|exprStmt;
-exprStmt: expr? Semi;
+forStmt : For '(' forInit exprStmt expr? ')' statement;
+forInit : varDef|exprStmt;
+exprStmt : expr? Semi;
 
-breakStmt: Break Semi;
-continueStmt: Continue Semi;
-returnStmt: Return expr?Semi;
+breakStmt : Break Semi;
+continueStmt : Continue Semi;
+returnStmt : Return expr ? Semi;
 
 
 /*======================expression=====================*/
 expr
 : '('expr')'                                     #parenExpr
-| New typeName (newArrayUnit)* ('('')')?         #newExpr   //包括new array和new class
+| New typeName (newArrayUnit)* ('('')')?         #newExpr   //包括new array[]和new class()
 | expr op=Dot Identifier                         #memberExpr
 | expr ('[' expr ']')+                           #arrayExpr
 //| expr op=Dot Identifier'(' exprList? ')'        #funcExpr
@@ -71,9 +72,9 @@ IntConst|StringConst|True|False|Null
 |Identifier
 |This;
 
-newArrayUnit:'['expr?']';
+newArrayUnit : '['expr?']';
 
-exprList: expr (Comma expr)*;
+exprList : expr (Comma expr)*;
 
 
 

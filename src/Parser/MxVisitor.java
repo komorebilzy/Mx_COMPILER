@@ -35,12 +35,6 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitTypeName(MxParser.TypeNameContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link MxParser#baseType}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitBaseType(MxParser.BaseTypeContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link MxParser#varDefUnit}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
