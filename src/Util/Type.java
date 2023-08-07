@@ -19,6 +19,13 @@ public class Type {
                 && !typeName.equals("this"))
             isClass = true;
     }
+    public Type(Type other){
+        this.typeName= other.typeName;
+        this.dim= other.dim;
+        this.isArray=other.isArray;
+        this.isClass=other.isClass;
+        this.isConst=other.isConst;
+    }
 
     public Type(String typeName, int dim) {
         this(typeName);

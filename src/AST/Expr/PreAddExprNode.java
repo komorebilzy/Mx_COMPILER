@@ -16,7 +16,9 @@ public class PreAddExprNode extends UnaryExprNode{
     public boolean isAssignable() {
         return true;
     }
-
+    public boolean isLeftValue() {
+        return true;
+    }
     @Override
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);

@@ -18,6 +18,9 @@ public class AtomExprNode extends ExprNode{
         return false;
     }
 
+    public boolean isLeftValue() {
+        return false;
+    }
     @Override
     public void accept(ASTVisitor visitor){
         visitor.visit(this);

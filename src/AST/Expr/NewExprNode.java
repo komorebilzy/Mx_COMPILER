@@ -24,6 +24,9 @@ public class NewExprNode extends ExprNode{
         return false;
     }
 
+    public boolean isLeftValue() {
+        return false;
+    }
     @Override
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);

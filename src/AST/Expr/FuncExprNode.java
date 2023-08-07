@@ -27,6 +27,8 @@ public class FuncExprNode extends ExprNode {
     public boolean isAssignable() {
         return false;
     }
-
+    public boolean isLeftValue() {
+        return false;
+    }
 
 }

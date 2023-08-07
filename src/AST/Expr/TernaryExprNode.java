@@ -21,7 +21,9 @@ public class TernaryExprNode extends ExprNode{
 
     @Override
     public boolean isAssignable(){return false;}
-
+    public boolean isLeftValue() {
+        return false;
+    }
     @Override
     public void accept(ASTVisitor visitor){
         visitor.visit(this);

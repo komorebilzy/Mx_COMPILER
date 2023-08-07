@@ -19,6 +19,9 @@ public class AssignExprNode extends BinaryExprNode {
         return true;
     }
 
+    public boolean isLeftValue() {
+        return true;
+    }
     @Override
     public void accept(ASTVisitor visitor){
         visitor.visit(this);

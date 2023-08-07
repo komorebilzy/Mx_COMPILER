@@ -18,6 +18,9 @@ public class BlockExprNode extends ExprNode{
     }
     @Override
     public boolean isAssignable(){return false;}
+    public boolean isLeftValue() {
+        return false;
+    }
 
 
 }
