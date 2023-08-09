@@ -1,4 +1,3 @@
-import AST.ASTVisitor;
 import AST.RootNode;
 import FrontEnd.ASTBuilder;
 import FrontEnd.SemanticChecker;
@@ -18,7 +17,7 @@ public class Compiler {
         InputStream input = System.in;
         boolean online=true;
 
-        if(!online) input=new FileInputStream("./Compiler-Design-Implementation/testcases/sema/misc-package/misc-37.mx");
+        if(!online) input=new FileInputStream("./Compiler-Design-Implementation/testcases/sema/basic-package/basic-72.mx");
 //        if(!online) input=new FileInputStream("./Compiler-Design-Implementation/testcases/sema/test.mx");
 
         try {

@@ -170,7 +170,7 @@ public class SemanticChecker implements ASTVisitor, BuiltinElements {
 
     public void visit(PreAddExprNode it) {
         it.expr.accept(this);
-        if (it.expr.type == null) throw new semanticError("invalid expression", it.pos);
+        if (it.expr.type == null || !it.expr.isLeftValue()) throw new semanticError("invalid expression", it.pos);
         if (!it.expr.type.equals(IntType)) throw new semanticError("Type should be int", it.pos);
         it.type = IntType;
     }
@@ -217,7 +217,7 @@ public class SemanticChecker implements ASTVisitor, BuiltinElements {
             throw new semanticError("invalid type of assignExpression", it.pos);
         if (!it.lhs.type.equals(it.rhs.type)) {
             //debug: 类=null也可以
-            if (!it.rhs.type.equals(NullType))
+            if (!it.rhs.type.equals(NullType) || !(it.lhs.type.dim>0 || it.lhs.type.isClass))
                 throw new semanticError("type does not match", it.pos);
         }
         //debug:the condition true=false

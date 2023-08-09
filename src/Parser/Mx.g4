@@ -49,8 +49,8 @@ expr
 | expr ('[' expr ']')+                           #arrayExpr
 //| expr op=Dot Identifier'(' exprList? ')'        #funcExpr
 | expr '(' exprList? ')'                         #funcExpr
-| op=(AddSelf|SubSelf) expr                      #preAddExpr
 | <assoc=right> expr op=(AddSelf|SubSelf)        #unaryExpr
+| op=(AddSelf|SubSelf) expr                      #preAddExpr
 | <assoc=right> op=(Not|BNot|Sub) expr           #unaryExpr
 | expr op=(Mul|Div|Mod) expr                     #binaryExpr
 | expr op=(Add|Sub) expr                         #binaryExpr
