@@ -16,6 +16,11 @@ public class Scope {
 
     public Scope(Scope par) {
         parentScope = par;
+        if(par!=null) {
+            if(par.inWhichClass!=null) inWhichClass=par.inWhichClass;
+            inLoop= par.inLoop;
+        }
+
     }
 
     public Scope(Scope par, ClassDefNode in) {
@@ -25,10 +30,13 @@ public class Scope {
     public Scope(Scope par, Type type) {
         parentScope = par;
         returnType = type;
+        if(par.inWhichClass!=null) inWhichClass=par.inWhichClass;
+        inLoop=par.inLoop;
     }
     public Scope(Scope par, boolean inloop) {
         parentScope = par;
         inLoop = inloop;
+        if(par.inWhichClass!=null) inWhichClass=par.inWhichClass;
     }
 
     public Scope ParentScope() {

@@ -1,13 +1,15 @@
 package Util;
 
+import AST.Def.FuncDefNode;
+
 public class Type {
     //    public boolean isInt = false, isBool = false;
 //    public HashMap<String, Type> members = null;
     public String typeName;
     public int dim = 0;
     public boolean isClass = false;
-    public boolean isArray=false;
-    public boolean isConst=false;
+    public boolean isFunc=false;
+    public FuncDefNode funcDef=null;
 
     public Type(String typeName) {
         this.typeName = typeName;
@@ -22,14 +24,17 @@ public class Type {
     public Type(Type other){
         this.typeName= other.typeName;
         this.dim= other.dim;
-        this.isArray=other.isArray;
         this.isClass=other.isClass;
-        this.isConst=other.isConst;
     }
 
     public Type(String typeName, int dim) {
         this(typeName);
         this.dim = dim;
+    }
+
+    public Type(FuncDefNode def){
+        this.funcDef=def;
+        this.typeName=def.funcName;
     }
 
     @Override

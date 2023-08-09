@@ -23,10 +23,10 @@ public class GlobalScope extends Scope{
         funcMems.put("toString",ToString);
 
         ClassDefNode stringDef=new ClassDefNode(null,"string");
-        stringDef.funcList.add(Length);
-        stringDef.funcList.add(SubString);
-        stringDef.funcList.add(ParseInt);
-        stringDef.funcList.add(Ord);
+        stringDef.funcMem.put("length",Length);
+        stringDef.funcMem.put("substring",SubString);
+        stringDef.funcMem.put("parseInt",ParseInt);
+        stringDef.funcMem.put("ord",Ord);
         classMems.put("string", stringDef);
         classMems.put("int", new ClassDefNode(null, "int"));
         classMems.put("bool", new ClassDefNode(null, "bool"));

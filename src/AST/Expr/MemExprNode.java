@@ -31,7 +31,4 @@ public class MemExprNode extends ExprNode{
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }
-
-
-
 }

@@ -7,7 +7,6 @@ import java.util.ArrayList;
 public class SuiteNode extends StmtNode{
     public ArrayList<StmtNode> stmts=new ArrayList<>();
 
-    public boolean builder=false;
 
     public SuiteNode(position pos){
         super(pos);

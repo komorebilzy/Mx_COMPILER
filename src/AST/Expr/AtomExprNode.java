@@ -7,6 +7,7 @@ public class AtomExprNode extends ExprNode{
     public AtomExprNode(position pos){
         super(pos);
     }
+    public boolean isLeft=false;
 
     public AtomExprNode(position pos, String s){
         super(pos);
@@ -19,7 +20,7 @@ public class AtomExprNode extends ExprNode{
     }
 
     public boolean isLeftValue() {
-        return false;
+        return isLeft;
     }
     @Override
     public void accept(ASTVisitor visitor){

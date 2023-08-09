@@ -3,7 +3,6 @@ package FrontEnd;
 import AST.ASTVisitor;
 import AST.Def.*;
 import AST.Expr.*;
-import AST.MainFnNode;
 import AST.RootNode;
 import AST.Stmt.*;
 import Util.Scope.*;
@@ -17,20 +16,19 @@ public class SymbolCollector implements ASTVisitor {
     public void visit(RootNode it){
         it.DefList.forEach(def->def.accept(this));
     }
-    public void visit(MainFnNode it){}
-
     //DefNode
     public void visit(VarDefNode it){
-        it.units.forEach(unit->unit.accept(this));
+//        it.units.forEach(unit->unit.accept(this));
     }
+    //debug : avoid redefinition of variable
     public void visit(VaraDefUnitNode it){
-        if(gScope.getType(it.varName)!=null){
-            throw new semanticError("redefinition of variable",it.pos);
-        }
-        if(gScope.getFunc(it.varName)!=null){
-            throw new semanticError("it is already defined as a function",it.pos);
-        }
-        gScope.addVar(it.varName,it.type,it.pos);
+//        if(gScope.getType(it.varName)!=null){
+//            throw new semanticError("redefinition of variable",it.pos);
+//        }
+//        if(gScope.getFunc(it.varName)!=null){
+//            throw new semanticError("it is already defined as a function",it.pos);
+//        }
+//        gScope.addVar(it.varName,it.type,it.pos);
     }
     public void visit(FuncDefNode it){
         if(this.gScope.getFunc(it.funcName)!=null){
@@ -53,14 +51,14 @@ public class SymbolCollector implements ASTVisitor {
         gScope.addClass(it.name,it);
         for(var fun:it.funcList){
             if (it.funcMem.containsKey(fun.funcName)) {
-                throw new semanticError("it is already defined as a function",fun.pos);
+                throw new semanticError(fun.funcName+" it is already defined as a function",fun.pos);
             }
             it.funcMem.put(fun.funcName, fun);
         }
         for(var vara:it.varList){
             for(var unit:vara.units){
                 if(it.varMem.containsKey(unit.varName)){
-                    throw new semanticError("it is already defined as a function",unit.pos);
+                    throw new semanticError(unit.varName+" is already defined as a variable",unit.pos);
                 }
                 it.varMem.put(unit.varName,unit);
             }

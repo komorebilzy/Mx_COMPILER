@@ -18,7 +18,9 @@ public class Compiler {
         InputStream input = System.in;
         boolean online=true;
 
-        if(!online) input=new FileInputStream("text.mx");
+        if(!online) input=new FileInputStream("./Compiler-Design-Implementation/testcases/sema/misc-package/misc-37.mx");
+//        if(!online) input=new FileInputStream("./Compiler-Design-Implementation/testcases/sema/test.mx");
+
         try {
             compile(input);
         }
@@ -45,8 +47,6 @@ public class Compiler {
 
         new SymbolCollector(globalScope).visit(ASTRoot);
         new SemanticChecker(globalScope).visit(ASTRoot);
-
-
 
     }
 }

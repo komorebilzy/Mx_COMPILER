@@ -6,7 +6,6 @@ import AST.Def.*;
 
 public interface ASTVisitor {
     public void visit(RootNode it);
-    public void visit(MainFnNode it);
 
     //DefNode
     public void visit(VarDefNode it);

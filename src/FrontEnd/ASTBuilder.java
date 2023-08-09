@@ -37,7 +37,6 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         VarDefNode varDef = new VarDefNode(new position(ctx));
         Type type = new Type(ctx.type().typeName().getText());
         type.dim = ctx.type().LBracket().size();
-        if (type.dim != 0) type.isArray = true;
         for (var x : ctx.varDefUnit()) {
             VaraDefUnitNode it = new VaraDefUnitNode(new position(ctx), type, x.Identifier().getText());
             if (x.expr() != null) {
@@ -56,7 +55,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         else {
             returnType = new Type(ctx.returnType().type().typeName().getText());
             returnType.dim = ctx.returnType().type().LBracket().size();
-            if (returnType.dim != 0) returnType.isArray = true;
+            returnType.isFunc = true;
         }
         funcDef.returnType = returnType;
         if (ctx.parameterList() != null)
@@ -71,7 +70,6 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         for (int i = 0; i < ctx.type().size(); ++i) {
             VaraDefUnitNode it = new VaraDefUnitNode(new position(ctx));
             it.type = new Type(ctx.type(i).typeName().getText(), ctx.type(i).LBracket().size());
-            if (it.type.dim != 0) it.type.isArray = true;
             it.varName = ctx.Identifier(i).getText();
             params.varList.add(it);
         }
@@ -84,7 +82,9 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         if (ctx.classBuild().size() > 1)
             throw new syntaxError("Multiple Constructors", new position(ctx));
         else {
-            classDef.classBuilder = (ClassBuildNode) visit(ctx.classBuild(0));
+            if (ctx.classBuild().size() == 1) {
+                classDef.classBuilder = (ClassBuildNode) visit(ctx.classBuild(0));
+            } else classDef.classBuilder = null;
             ctx.varDef().forEach(vd -> classDef.varList.add((VarDefNode) visit(vd)));
             ctx.funcDef().forEach(fd -> classDef.funcList.add((FuncDefNode) visit(fd)));
             return classDef;
@@ -107,8 +107,9 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     public ASTNode visitNewExpr(MxParser.NewExprContext ctx) {
         NewExprNode newExpr = new NewExprNode(new position(ctx), ctx.typeName().getText());
         newExpr.dim = ctx.newArrayUnit().size();
+        newExpr.type = new Type(newExpr.typeName, newExpr.dim);
         for (int i = 0; i < newExpr.dim; ++i) {
-            if (ctx.newArrayUnit(i) != null) newExpr.lists.add((ExprNode) visit(ctx.newArrayUnit(i).expr()));
+            if (ctx.newArrayUnit(i).expr() != null) newExpr.lists.add((ExprNode) visit(ctx.newArrayUnit(i).expr()));
             else newExpr.lists.add(null);
         }
         return newExpr;
@@ -132,7 +133,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     public ASTNode visitFuncExpr(MxParser.FuncExprContext ctx) {
         FuncExprNode funcExpr = new FuncExprNode(new position(ctx));
         funcExpr.funcName = (ExprNode) visit(ctx.expr());
-        funcExpr.lists = (BlockExprNode) visit(ctx.exprList());
+        if (ctx.exprList() != null) funcExpr.lists = (BlockExprNode) visit(ctx.exprList());
         return funcExpr;
     }
 
@@ -193,16 +194,38 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     }
 
     //STMT
+    public ASTNode visitStatement(MxParser.StatementContext ctx) {
+        if (ctx.suite() != null)
+            return visit(ctx.suite());
+        else if (ctx.varDef() != null)
+            return new DefStmtNode((VarDefNode)visit(ctx.varDef()),new position(ctx));
+        else if (ctx.exprStmt() != null)
+            return visit(ctx.exprStmt());
+        else if (ctx.ifStmt() != null)
+            return visit(ctx.ifStmt());
+        else if (ctx.forStmt() != null)
+            return visit(ctx.forStmt());
+        else if (ctx.whileStmt() != null)
+            return visit(ctx.whileStmt());
+        else if (ctx.returnStmt() != null)
+            return visit(ctx.returnStmt());
+        else if (ctx.breakStmt() != null)
+            return visit(ctx.breakStmt());
+        else if (ctx.continueStmt() != null)
+            return visit(ctx.continueStmt());
+        else
+            return visitChildren(ctx);
+    }
 
-    //todo fix the maybe error
     @Override
     public ASTNode visitSuite(MxParser.SuiteContext ctx) {
         SuiteNode suite = new SuiteNode(new position(ctx));
         for (int i = 0; i < ctx.statement().size(); ++i) {
-            if (ctx.statement(i).varDef() != null) {
-                DefStmtNode tmp = new DefStmtNode((VarDefNode) visit(ctx.statement(i)), new position(ctx));
-                suite.stmts.add(tmp);
-            } else suite.stmts.add((StmtNode) visit(ctx.statement(i)));
+//            if (ctx.statement(i).varDef() != null) {
+//                DefStmtNode tmp = new DefStmtNode((VarDefNode) visit(ctx.statement(i)), new position(ctx));
+//                suite.stmts.add(tmp);
+//            } else suite.stmts.add((StmtNode) visit(ctx.statement(i)));
+            suite.stmts.add((StmtNode)visit(ctx.statement(i)));
         }
         return suite;
     }
@@ -233,7 +256,8 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         if (ctx.forInit().varDef() != null) {
             forStmt.varDef = (VarDefNode) visit(ctx.forInit().varDef());
         } else if (ctx.forInit().exprStmt() != null) {
-            forStmt.init = (ExprNode) visit(ctx.forInit().exprStmt());
+            //debug: note the condition that ctx.forInit().exprStmt()==null
+            forStmt.init = ((ExprStmtNode) visit(ctx.forInit().exprStmt())).expr;
         }
         if (ctx.exprStmt().expr() != null) forStmt.condition = (ExprNode) visit(ctx.exprStmt().expr());
         if (ctx.expr() != null) forStmt.step = (ExprNode) visit(ctx.expr());
@@ -244,7 +268,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitExprStmt(MxParser.ExprStmtContext ctx) {
-        return new ExprStmtNode((ExprNode) visit(ctx.expr()), new position(ctx));
+        return new ExprStmtNode(ctx.expr() == null ? null : (ExprNode) visit(ctx.expr()), new position(ctx));
     }
 
     @Override
