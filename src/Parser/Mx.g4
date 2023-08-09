@@ -62,7 +62,7 @@ expr
 | expr op=BOr expr                               #binaryExpr
 | expr op=And expr                               #binaryExpr
 | expr op=Or expr                                #binaryExpr
-| expr op='?' expr op=':'expr                    #ternaryExpr
+| <assoc=right> expr op='?' expr op=':'expr      #ternaryExpr
 | <assoc=right> expr op=Assign expr              #assignExpr
 | primary                                        #atomExpr
 ;

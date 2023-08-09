@@ -17,7 +17,7 @@ public class Compiler {
         InputStream input = System.in;
         boolean online=true;
 
-        if(!online) input=new FileInputStream("./Compiler-Design-Implementation/testcases/sema/basic-package/basic-72.mx");
+        if(!online) input=new FileInputStream("./Compiler-Design-Implementation/testcases/sema/ternary-package/ternary-expression-5.mx");
 //        if(!online) input=new FileInputStream("./Compiler-Design-Implementation/testcases/sema/test.mx");
 
         try {

@@ -20,7 +20,6 @@ public class Scope {
             if(par.inWhichClass!=null) inWhichClass=par.inWhichClass;
             inLoop= par.inLoop;
         }
-
     }
 
     public Scope(Scope par, ClassDefNode in) {

@@ -83,7 +83,7 @@ public class SemanticChecker implements ASTVisitor, BuiltinElements {
             throw new semanticError("undefined type of " + it.type.typeName, it.pos);
         }
         if (it.init != null) it.init.accept(this);
-        if (it.init!=null && !NullType.equals(it.init.type) && it.type.dim != it.init.type.dim)
+        if (it.init != null && !NullType.equals(it.init.type) && it.type.dim != it.init.type.dim)
             throw new semanticError("the dim of array is wrong ", it.pos);
         if (currentScope.hasValInThisScope(it.varName)) {
             throw new semanticError("redefinition of variable " + it.varName, it.pos);
@@ -125,13 +125,12 @@ public class SemanticChecker implements ASTVisitor, BuiltinElements {
             for (Scope i = currentScope; i != null; i = i.parentScope) {
                 if (i.varMembers.containsKey(it.str)) {
                     it.type = i.varMembers.get(it.str);
-                    it.isLeft=true;
+                    it.isLeft = true;
                     flag = true;
                     break;
-                }
-                else if(i.inWhichClass!=null && i.inWhichClass.funcMem.containsKey(it.str)){
-                    it.type=new Type(i.inWhichClass.funcMem.get(it.str));
-                    flag=true;
+                } else if (i.inWhichClass != null && i.inWhichClass.funcMem.containsKey(it.str)) {
+                    it.type = new Type(i.inWhichClass.funcMem.get(it.str));
+                    flag = true;
                     break;
                 }
                 if (i instanceof GlobalScope) {
@@ -182,7 +181,7 @@ public class SemanticChecker implements ASTVisitor, BuiltinElements {
             throw new semanticError("invalid type of binaryExpression", it.pos);
         if (!it.lhs.type.equals(it.rhs.type)) {
             //debug:the condition-- 类!=null
-            if ((it.op.equals("==") || it.op.equals("!=")) && (it.lhs.type.dim > 0||it.lhs.type.isClass) && it.rhs.type.equals(NullType)) {
+            if ((it.op.equals("==") || it.op.equals("!=")) && (it.lhs.type.dim > 0 || it.lhs.type.isClass) && it.rhs.type.equals(NullType)) {
                 it.type = BoolType;
                 return;
             } else throw new semanticError("invalid type of binaryExpression", it.pos);
@@ -198,8 +197,8 @@ public class SemanticChecker implements ASTVisitor, BuiltinElements {
                     throw new semanticError("the type should be int ot string", it.pos);
                 it.type = it.op.equals("+") ? new Type(it.lhs.type) : BoolType;
             }
-            case "==","!=" ->{
-                it.type=BoolType;
+            case "==", "!=" -> {
+                it.type = BoolType;
             }
             case "||", "&&" -> {
                 if (!it.lhs.type.equals(BoolType))
@@ -217,7 +216,7 @@ public class SemanticChecker implements ASTVisitor, BuiltinElements {
             throw new semanticError("invalid type of assignExpression", it.pos);
         if (!it.lhs.type.equals(it.rhs.type)) {
             //debug: 类=null也可以
-            if (!it.rhs.type.equals(NullType) || !(it.lhs.type.dim>0 || it.lhs.type.isClass))
+            if (!it.rhs.type.equals(NullType) || !(it.lhs.type.dim > 0 || it.lhs.type.isClass))
                 throw new semanticError("type does not match", it.pos);
         }
         //debug:the condition true=false
@@ -230,8 +229,13 @@ public class SemanticChecker implements ASTVisitor, BuiltinElements {
         it.judge.accept(this);
         it.trueCond.accept(this);
         it.falseCon.accept(this);
-        if (!(it.judge.type.equals(BoolType) && it.trueCond.type.equals(it.falseCon.type)))
-            throw new semanticError("type does not match", it.pos);
+        //debug: 类 a=(1<0)?null:a
+        if (!(it.judge.type.equals(BoolType) && it.trueCond.type.equals(it.falseCon.type))) {
+            if (it.trueCond.type.equals(NullType) && (it.falseCon.type.isClass || it.falseCon.type.dim>0) || it.falseCon.type.equals(NullType) && (it.trueCond.type.isClass||it.trueCond.type.dim>0)) {
+                it.type = it.trueCond.type.equals(NullType) ? it.falseCon.type : it.trueCond.type;
+                return;
+            } else throw new semanticError("type does not match", it.pos);
+        }
         it.type = it.trueCond.type;
     }
 
@@ -241,6 +245,9 @@ public class SemanticChecker implements ASTVisitor, BuiltinElements {
 
 
     //mainly debug
+    //思路：有点复杂
+    //1.若是func()  直接在 currentScope 或者 globalScope 寻找
+    //2.若是a.func() 在 MemExprNode 中处理：提前记录这个func对应的标准funcMem
     public void visit(FuncExprNode it) {
         it.funcName.accept(this);
         if (it.funcName instanceof MemExprNode) {
@@ -254,8 +261,8 @@ public class SemanticChecker implements ASTVisitor, BuiltinElements {
                         throw new semanticError("function does not match", it.pos);
                 }
             } else {
-                var tmp= ((MemExprNode) it.funcName).funcMem.params;
-                if(tmp!=null && tmp.varList.size()!=0)
+                var tmp = ((MemExprNode) it.funcName).funcMem.params;
+                if (tmp != null && tmp.varList.size() != 0)
                     throw new semanticError("function does not match", it.pos);
             }
         } else {
@@ -272,8 +279,8 @@ public class SemanticChecker implements ASTVisitor, BuiltinElements {
             } else {
                 if (compare.params == null || compare.params.varList.size() != it.lists.exprs.size())
                     throw new semanticError("the type of function params does not match", it.pos);
-                ArrayList<VaraDefUnitNode> com=compare.params.varList;
-                ArrayList<ExprNode> my=it.lists.exprs;
+                ArrayList<VaraDefUnitNode> com = compare.params.varList;
+                ArrayList<ExprNode> my = it.lists.exprs;
                 for (int i = 0; i < com.size(); ++i) {
                     if (!com.get(i).type.equals(my.get(i).type) && !(com.get(i).type.isClass && my.get(i).type.equals(NullType)))
                         throw new semanticError("the type of function params does not match", it.pos);
@@ -290,7 +297,8 @@ public class SemanticChecker implements ASTVisitor, BuiltinElements {
         //debug:not only the member of class,but can also the member of array,like: array a.size()
         if (it.className.type.dim > 0 && it.member.equals("size")) {
             it.type = IntType;
-            it.funcMem=Size;
+            //debug:int a[]=new int [3] ;  a.size()
+            it.funcMem = Size;
             return;
         }
         if (globalScope.getClass(it.className.type.typeName) == null)
@@ -298,7 +306,7 @@ public class SemanticChecker implements ASTVisitor, BuiltinElements {
         ClassDefNode a = globalScope.getClass(it.className.type.typeName);
         if (a.varMem.containsKey(it.member)) {
             it.type = a.varMem.get(it.member).type;
-            if(it.type.dim>0) it.funcMem=Size;
+            if (it.type.dim > 0) it.funcMem = Size;
         } else if (a.funcMem.containsKey(it.member)) {
             it.funcMem = a.funcMem.get(it.member);
             it.type = it.funcMem.returnType;
@@ -311,10 +319,10 @@ public class SemanticChecker implements ASTVisitor, BuiltinElements {
         boolean isEmpty = false;
         for (var expr : it.lists) {
             if (expr == null) isEmpty = true;
-            else if(isEmpty) throw new semanticError("array dimension can not be empty",it.pos);
+            else if (isEmpty) throw new semanticError("array dimension can not be empty", it.pos);
             else {
                 expr.accept(this);
-                if(!expr.type.equals(IntType)) throw new semanticError("the index type is wrong",it.pos);
+                if (!expr.type.equals(IntType)) throw new semanticError("the index type is wrong", it.pos);
             }
         }
         if (!it.typeName.equals("int") && !it.typeName.equals("bool") && !it.typeName.equals("string") && globalScope.getClass(it.typeName) == null) {
