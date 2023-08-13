@@ -194,6 +194,11 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     }
 
     //STMT
+
+    //debug:
+    //1.可以去看一下StatementContext 第一个函数是LBrace()
+    //所以处理for(;;){{int a=1;}} 时，不会优先读suite()而是去读了{ 返回值为null
+    //2.将varDef转化成defStmt
     public ASTNode visitStatement(MxParser.StatementContext ctx) {
         if (ctx.suite() != null)
             return visit(ctx.suite());
