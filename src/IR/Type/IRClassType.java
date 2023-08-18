@@ -2,14 +2,16 @@ package IR.Type;
 
 import IR.Entity.IRConst;
 import IR.Entity.IREntity;
+import IR.Type.IRType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class IRClassType extends IRType {
+    //type: name  size
     public ArrayList<IRType> memberType = new ArrayList<>();
     public HashMap<String, Integer> memberOffset = new HashMap<>();
-    public boolean isBuilt = false;
+
 
     public IRClassType(String name, int size) {
         super(name, size);

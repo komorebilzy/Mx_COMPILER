@@ -9,6 +9,7 @@ public class brInst extends IRInst{
     public IRBasicBlock thenBlock;
     public IRBasicBlock elseBlock;
 
+
     public brInst(IRBasicBlock par, IREntity cond, IRBasicBlock thenB, IRBasicBlock elseB){
         super(par);
         this.cond=cond;

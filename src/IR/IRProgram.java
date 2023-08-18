@@ -1,6 +1,5 @@
 package IR;
 
-import IR.Entity.IREntity;
 import IR.Entity.IRGlobalVal;
 import IR.Type.IRClassType;
 import Util.BuiltinElements;

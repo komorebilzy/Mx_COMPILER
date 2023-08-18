@@ -11,12 +11,24 @@ public class binaryInst extends IRInst {
     public IREntity res, lhs, rhs;
 
 
-    public binaryInst(IRBasicBlock block, IRType type, String op, IREntity lhs, IREntity rhs) {
+    public binaryInst(IRBasicBlock block, String str, IREntity res,IREntity lhs, IREntity rhs) {
         super(block);
         this.lhs = lhs;
         this.rhs = rhs;
-        this.op = op;
-        this.resultType = type;
+        this.res = res;
+        this.resultType=lhs.type;
+        switch (str) {
+            case "+" -> op = "add";
+            case "-" -> op = "sub";
+            case "*" -> op = "mul";
+            case "/" -> op = "sdiv";
+            case "%" -> op = "srem";
+            case "<<" -> op = "shl";
+            case ">>" -> op = "ashr";
+            case "&" -> op = "and";
+            case "|" -> op = "or";
+            case "^" -> op = "xor";
+        }
     }
 
 

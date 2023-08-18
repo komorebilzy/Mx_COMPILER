@@ -7,12 +7,12 @@ import IR.IRVisitor;
 
 public class storeInst extends IRInst{
     public IREntity value;
-    public IRRegister pointer;
+    public IREntity res;
 
-    public storeInst(IRBasicBlock par, IREntity value, IRRegister pointer){
+    public storeInst(IRBasicBlock par, IREntity value, IREntity res){
         super(par);
         this.value=value;
-        this.pointer=pointer;
+        this.res=res;
     }
 
     @Override
@@ -22,6 +22,6 @@ public class storeInst extends IRInst{
 
     @Override
     public String toString() {
-        return "store "+value.toString()+", "+pointer.toString();
+        return "store "+res.toString()+", "+value.toString();
     }
 }

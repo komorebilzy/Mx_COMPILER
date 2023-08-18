@@ -3,6 +3,7 @@ package IR.Inst;
 import IR.Entity.IREntity;
 import IR.IRBasicBlock;
 import IR.IRVisitor;
+import Util.BuiltinElements;
 
 public class retInst extends IRInst{
     public IREntity value;
@@ -14,7 +15,7 @@ public class retInst extends IRInst{
 
     public retInst(IRBasicBlock par){
         super(par);
-        this.value=null;
+        this.value= BuiltinElements.irVoidConst;
     }
 
 

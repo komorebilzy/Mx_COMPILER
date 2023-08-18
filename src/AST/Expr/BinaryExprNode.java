@@ -26,4 +26,9 @@ public class BinaryExprNode extends ExprNode{
     public void accept(ASTVisitor visitor){
         visitor.visit(this);
     }
+
+    //===================================IR==================================
+    public boolean isCmp=false;     //< > <= >= == !=
+    public boolean isAdd=false;     //+ especially for string
+    public boolean isLogic=false;   //&& ||
 }

@@ -20,16 +20,21 @@ import IR.Type.IRType;
 public class lcmpInst extends IRInst {
     public IRRegister res;
     public String cond;
-    public IRType type;
-    public IREntity op1, op2;
+    public IREntity lhs, rhs;
 
-    public lcmpInst(IRBasicBlock par, IRRegister res, String cond, IREntity o1, IREntity o2) {
+    public lcmpInst(IRBasicBlock par, IRRegister res, String str, IREntity o1, IREntity o2) {
         super(par);
         this.res = res;
-        this.cond = cond;
-        this.op1 = o1;
-        this.op2 = o2;
-        this.type = op1.type;
+        switch (str) {
+            case "<" -> cond = "slt";
+            case ">" -> cond = "sgt";
+            case "<=" -> cond = "sle";
+            case ">=" -> cond = "sge";
+            case "==" -> cond = "eq";
+            case "!=" -> cond = "ne";
+        }
+        this.lhs = o1;
+        this.rhs = o2;
     }
 
 
@@ -40,6 +45,6 @@ public class lcmpInst extends IRInst {
 
     @Override
     public String toString() {
-        return res.getValue()+" = icmp "+cond+" "+op1.toString()+", "+op2.getValue();
+        return res.getValue()+" = icmp "+cond+" "+lhs.toString()+", "+rhs.getValue();
     }
 }

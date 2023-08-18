@@ -18,4 +18,9 @@ public abstract class IRType implements BuiltinElements {
 
     public abstract String toString();
     public abstract IREntity defaultValue();
+
+    public IRPtrType asPtr(){
+        return new IRPtrType(this);
+    }
+
 }

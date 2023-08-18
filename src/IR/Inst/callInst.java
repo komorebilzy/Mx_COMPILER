@@ -5,6 +5,7 @@ import IR.Entity.IRRegister;
 import IR.IRBasicBlock;
 import IR.IRVisitor;
 import IR.Type.IRType;
+import Util.BuiltinElements;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,21 +16,19 @@ public class callInst extends IRInst {
     public String funcName;
     public IRRegister res;
 
-    public callInst(IRBasicBlock par, IRType type, String name) {
+    public callInst(IRBasicBlock par,  String name,ArrayList<IREntity> args) {
         super(par);
-        this.returnType = type;
+        this.returnType = BuiltinElements.irVoidType;
         this.funcName = name;
+        this.args=args;
     }
 
-    public callInst(IRBasicBlock par, IRType type, IRRegister res, String name, IREntity... args) {
+    public callInst(IRBasicBlock par, IRType type, IRRegister res, String name, ArrayList<IREntity> args) {
         super(par);
         this.returnType = type;
         this.funcName = name;
         this.res = res;
-//        for(IREntity arg:args){
-//            this.args.add(arg);
-//        }
-        this.args.addAll(Arrays.asList(args));
+        this.args=args;
     }
 
 

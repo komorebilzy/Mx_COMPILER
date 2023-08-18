@@ -2,6 +2,7 @@ package AST.Def;
 
 import AST.ASTVisitor;
 import AST.Expr.ExprNode;
+import IR.Entity.IREntity;
 import Util.position;
 import Util.Type;
 
@@ -24,4 +25,7 @@ public class VaraDefUnitNode extends DefNode {
     public void accept(ASTVisitor visitor){
         visitor.visit(this);
     }
+
+    //======================================IR=========================================
+    public IREntity entity;
 }

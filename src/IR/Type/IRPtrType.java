@@ -27,7 +27,7 @@ public class IRPtrType extends IRType {
 
     @Override
     public String toString() {
-        return baseType.toString() + "*".repeat(dim);
+        return "ptr "+baseType.toString();
     }
 
     public IRType pointToType() {

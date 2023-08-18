@@ -1,5 +1,6 @@
 package IR.Entity;
 
+import IR.Type.IRClassType;
 import IR.Type.*;
 
 public class IRConst extends IREntity {

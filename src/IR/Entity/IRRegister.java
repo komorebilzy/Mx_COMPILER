@@ -4,6 +4,7 @@ import IR.Type.IRType;
 
 public class IRRegister extends IREntity{
     public String name;
+    public IREntity init;
     public IRRegister(IRType type, String name){
         super(type);
         this.name=name;
