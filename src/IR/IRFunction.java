@@ -56,13 +56,13 @@ public class IRFunction {
         visitor.visit(this);
     }
 
-    public static IRFunction globalVarInit(){
-        IRFunction func=new IRFunction("_mx_global_var_init", BuiltinElements.irVoidType);
+    public static IRFunction globalVarInit(String name){
+        IRFunction func=new IRFunction("_mx_global_var_init_of_"+name, BuiltinElements.irVoidType);
         return func;
     }
 
     public String getLabel(){
-        return name+Integer.toString(++labelNum);
+        return Integer.toString(++labelNum);
     }
 
     public String getRegId(){

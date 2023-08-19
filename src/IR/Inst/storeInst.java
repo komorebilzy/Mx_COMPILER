@@ -6,13 +6,13 @@ import IR.IRBasicBlock;
 import IR.IRVisitor;
 
 public class storeInst extends IRInst{
+    public IREntity pointer;
     public IREntity value;
-    public IREntity res;
 
-    public storeInst(IRBasicBlock par, IREntity value, IREntity res){
+    public storeInst(IRBasicBlock par, IREntity pointer, IREntity value){
         super(par);
+        this.pointer=pointer;
         this.value=value;
-        this.res=res;
     }
 
     @Override
@@ -22,6 +22,6 @@ public class storeInst extends IRInst{
 
     @Override
     public String toString() {
-        return "store "+res.toString()+", "+value.toString();
+        return "store "+value.toString()+", ptr"+pointer.getValue();
     }
 }

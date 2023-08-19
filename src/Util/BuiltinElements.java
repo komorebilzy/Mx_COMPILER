@@ -52,6 +52,7 @@ public interface BuiltinElements {
 
     IRConst irBoolTrue = new IRConst(irBoolType, true);
     IRConst irBoolFalse = new IRConst(irBoolType, false);
+    IRConst irNullConst=new IRConst(irNullType);
 
     IRConst irIntConst0 = new IRConst(irIntType, 0);
     IRConst irIntConst1 = new IRConst(irIntType, 1);

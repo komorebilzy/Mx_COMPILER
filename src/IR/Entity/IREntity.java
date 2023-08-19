@@ -5,7 +5,6 @@ import Util.BuiltinElements;
 
 public abstract class IREntity implements BuiltinElements {
     public IRType type;
-    public boolean isStr=false;
 
     IREntity(IRType type){
         this.type=type;
