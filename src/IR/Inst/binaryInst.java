@@ -40,6 +40,6 @@ public class binaryInst extends IRInst {
 
     @Override
     public String toString() {
-        return res.getValue() + " = " + op + " " + resultType.toString() + " " + lhs.toString() + ", " + rhs.toString();
+        return res.getValue() + " = " + op + " " + resultType.toString() + " " + lhs.getValue() + ", " + rhs.getValue();
     }
 }

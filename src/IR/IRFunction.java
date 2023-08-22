@@ -21,17 +21,17 @@ public class IRFunction {
     public IRBasicBlock entry=new IRBasicBlock("entry");
     public ArrayList<IREntity> params = new ArrayList<>();
     public ArrayList<IRBasicBlock> blocks = new ArrayList<>();
-    public int labelNum=0;
-    public int var=0;
+    public int labelNum=-1;
+    public int var=-1;
     public boolean isReturned=false;
 
     public IRFunction(String name, IRType returnType) {
-        this.name = "_func_" + name;
+        this.name =  name;
         this.returnType = returnType;
     }
 
     public IRFunction(String name, IRType returnType, IREntity... para) {
-        this.name = "_func_" + name;
+        this.name =  name;
         this.returnType = returnType;
         params.addAll(List.of(para));
     }
@@ -43,7 +43,6 @@ public class IRFunction {
             if(i!=params.size()-1) ans.append(", ");
         }
         ans.append(") {\n");
-        ans.append(entry.toString());
         for(IRBasicBlock block:blocks){
             ans.append(block.toString()).append("\n");
         }
@@ -62,7 +61,7 @@ public class IRFunction {
     }
 
     public String getLabel(){
-        return Integer.toString(++labelNum);
+        return "block_"+Integer.toString(++labelNum);
     }
 
     public String getRegId(){

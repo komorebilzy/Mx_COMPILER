@@ -31,3 +31,11 @@ out/
 Compiler-Design-Implementation/
 
 gen/
+
+.tmp/
+
+ravel/
+
+src/META-INF
+test.ll
+test

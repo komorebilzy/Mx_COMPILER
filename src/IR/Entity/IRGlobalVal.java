@@ -1,11 +1,14 @@
 package IR.Entity;
 
 import IR.IRBasicBlock;
+import IR.Type.IRPtrType;
 import IR.Type.IRType;
 
 public class IRGlobalVal extends IREntity{
     public String name;
     public IREntity init;
+    public boolean isString=false;
+
     public IRGlobalVal(IRType type, String name){
         super(type);
         this.name=name;
@@ -23,7 +26,7 @@ public class IRGlobalVal extends IREntity{
 
     @Override
     public String toString() {
-        return type + " " + getValue();
+        return "ptr "+getValue();
     }
 
 }

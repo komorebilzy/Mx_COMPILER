@@ -14,7 +14,6 @@ public class Scope {
     public Type returnType = null; //belong to a function
     public ClassDefNode inWhichClass = null;  //belong to a class
     public boolean inLoop = false, isReturned = false;
-
     public Scope(Scope par) {
         parentScope = par;
         if (par != null) {

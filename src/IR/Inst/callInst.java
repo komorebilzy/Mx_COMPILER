@@ -40,9 +40,11 @@ public class callInst extends IRInst {
     @Override
     public String toString() {
         String ans = (res != null ? res.getValue() + " = call " : "call ") + returnType.toString() + " @" + funcName + "(";
-        for (int i = 0; i < args.size(); ++i) {
-            ans += args.get(i).toString();
-            if (i != args.size() - 1) ans += ", ";
+        if(args!=null && args.size()!=0){
+            for (int i = 0; i < args.size(); ++i) {
+                ans += args.get(i).toString();
+                if (i != args.size() - 1) ans += ", ";
+            }
         }
         ans += ")";
         return ans;

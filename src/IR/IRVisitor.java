@@ -21,4 +21,6 @@ public interface IRVisitor {
     public void visit(phiInst it);
     public void visit(retInst it);
     public void visit(selectInst it);
+
+    public void visit(declareInst it);
 }

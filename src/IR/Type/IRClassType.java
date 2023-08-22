@@ -2,6 +2,7 @@ package IR.Type;
 
 import IR.Entity.IRConst;
 import IR.Entity.IREntity;
+import IR.IRVisitor;
 import IR.Type.IRType;
 
 import java.util.ArrayList;
@@ -36,11 +37,16 @@ public class IRClassType extends IRType {
 
     @Override
     public String toString() {
-        return "%struct." + name;
+        return "%class."+name;
+//        return "ptr";
     }
 
     @Override
     public IREntity defaultValue() {
         return new IRConst(this, IRConst.constType.NULL);
+    }
+
+    public void accept(IRVisitor visitor){
+       visitor.visit(this);
     }
 }

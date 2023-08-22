@@ -22,6 +22,6 @@ public class storeInst extends IRInst{
 
     @Override
     public String toString() {
-        return "store "+value.toString()+", ptr"+pointer.getValue();
+        return "store "+value.toString()+", ptr "+pointer.getValue();
     }
 }

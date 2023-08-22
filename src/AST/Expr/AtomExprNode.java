@@ -10,6 +10,7 @@ public class AtomExprNode extends ExprNode{
     public boolean isLeft=false;
     public boolean isConst=true;
 
+
     public AtomExprNode(position pos, String s){
         super(pos);
         this.str = s;
