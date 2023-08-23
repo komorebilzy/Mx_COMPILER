@@ -27,6 +27,7 @@ public class SemanticChecker implements ASTVisitor, BuiltinElements {
         if (mainFunc == null || !mainFunc.returnType.typeName.equals("int") || mainFunc.params != null) {
             throw new semanticError("the main function is wrong", it.pos);
         }
+        mainFunc.isMain=true;
         //总程序是顺序访问，所以前面的function不可以调用后面的variable
         for (var def : it.DefList) {
             def.accept(this);
@@ -103,6 +104,7 @@ public class SemanticChecker implements ASTVisitor, BuiltinElements {
         }
         //debug : array[0][1]:dim=0   array[1]:dim=1;
         it.type = new Type(it.name.type);
+        it.str=it.name.str;
         it.type.dim -= it.index.size();
         if (it.type.dim < 0)
             throw new semanticError("the dim of the variable is more than it can be", it.pos);

@@ -21,8 +21,8 @@ public class IRFunction {
     public IRBasicBlock entry=new IRBasicBlock("entry");
     public ArrayList<IREntity> params = new ArrayList<>();
     public ArrayList<IRBasicBlock> blocks = new ArrayList<>();
-    public int labelNum=-1;
-    public int var=-1;
+    public long labelNum=-1;
+    public long var=-1;
     public boolean isReturned=false;
 
     public IRFunction(String name, IRType returnType) {
@@ -61,11 +61,11 @@ public class IRFunction {
     }
 
     public String getLabel(){
-        return "block_"+Integer.toString(++labelNum);
+        return "block_"+Long.toString(++labelNum);
     }
 
     public String getRegId(){
-        return  Integer.toString(++var);
+        return  Long.toString(++var);
     }
 
 }

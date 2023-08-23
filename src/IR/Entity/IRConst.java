@@ -78,7 +78,7 @@ public class IRConst extends IREntity {
             char c = s.charAt(i);
             if (c == '\\') {
                 char next = s.charAt(i + 1);
-                if (next == '\n' || next == '\\' || next == '\"') {
+                if (next == 'n' || next == '\\' || next == '\"') {
                     ++cnt;
                     ++i;
                 }

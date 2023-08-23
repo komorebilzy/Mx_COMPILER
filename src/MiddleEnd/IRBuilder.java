@@ -30,12 +30,14 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
     GlobalScope globalScope;
     Scope currentScope = null;
     IRProgram root;
+    ArrayList<callInst> vara_init = new ArrayList<>();
 
     //used for while and for statement
     IRBasicBlock curBeginBlock = null;
     IRBasicBlock curEndBlock = null;
 
     HashMap<String, IRClassType> structTypeMap = new HashMap<>();
+    HashMap<String,IRClassType> structDetailMap=new HashMap<>();
 
     public IRBuilder(IRProgram root, GlobalScope globalScope) {
         this.root = root;
@@ -44,28 +46,28 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
         addDeclare();
     }
 
-    private void addDeclare(){
-        currentBlock=new IRBasicBlock("init");
-        declareInst Print=new declareInst(currentBlock,irVoidType,"print",new IRRegister(irStringType,"s"));
-        declareInst PrintLn=new declareInst(currentBlock,irVoidType,"println",new IRRegister(irStringType,"s"));
-        declareInst PrintInt=new declareInst(currentBlock,irVoidType,"printInt",new IRRegister(irIntType,"x"));
-        declareInst PrintlnInt=new declareInst(currentBlock,irVoidType,"printlnInt",new IRRegister(irIntType,"x"));
-        declareInst GetString=new declareInst(currentBlock,irStringType,"getString");
-        declareInst GetInt=new declareInst(currentBlock,irIntType,"getInt");
-        declareInst ToString=new declareInst(currentBlock,irStringType,"toString",new IRRegister(irIntType,"x"));
+    private void addDeclare() {
+        currentBlock = new IRBasicBlock("init");
+        declareInst Print = new declareInst(currentBlock, irVoidType, "print", new IRRegister(irStringType, "s"));
+        declareInst PrintLn = new declareInst(currentBlock, irVoidType, "println", new IRRegister(irStringType, "s"));
+        declareInst PrintInt = new declareInst(currentBlock, irVoidType, "printInt", new IRRegister(irIntType, "x"));
+        declareInst PrintlnInt = new declareInst(currentBlock, irVoidType, "printlnInt", new IRRegister(irIntType, "x"));
+        declareInst GetString = new declareInst(currentBlock, irStringType, "getString");
+        declareInst GetInt = new declareInst(currentBlock, irIntType, "getInt");
+        declareInst ToString = new declareInst(currentBlock, irStringType, "toString", new IRRegister(irIntType, "x"));
 
-        declareInst Length=new declareInst(currentBlock,irIntType,"__string_length",new IRRegister(irStringType,"s"));
-        declareInst SubString =new declareInst(currentBlock,irStringType,"__string_subString",new IRRegister(irStringType,"s"),new IRRegister(irIntType,"l"),new IRRegister(irIntType,"r"));
-        declareInst ParseInt=new declareInst(currentBlock,irIntType,"__string_parseInt",new IRRegister(irStringType,"s"));
-        declareInst Ord=new declareInst(currentBlock,irIntType,"__string_ord",new IRRegister(irStringType,"s"),new IRRegister(irIntType,"x"));
-        declareInst Add=new declareInst(currentBlock,irStringType,"__string_add",new IRRegister(irStringType,"s"),new IRRegister(irStringType,"t"));
-        declareInst Slt=new declareInst(currentBlock,irBoolType,"__string_slt",new IRRegister(irStringType,"s"),new IRRegister(irStringType,"t"));
-        declareInst Sle=new declareInst(currentBlock,irBoolType,"__string_sle",new IRRegister(irStringType,"s"),new IRRegister(irStringType,"t"));
-        declareInst Sgt=new declareInst(currentBlock,irBoolType,"__string_sgt",new IRRegister(irStringType,"s"),new IRRegister(irStringType,"t"));
-        declareInst Sge=new declareInst(currentBlock,irBoolType,"__string_sge",new IRRegister(irStringType,"s"),new IRRegister(irStringType,"t"));
-        declareInst Eq=new declareInst(currentBlock,irBoolType,"__string_eq",new IRRegister(irStringType,"s"),new IRRegister(irStringType,"t"));
-        declareInst Ne=new declareInst(currentBlock,irBoolType,"__string_ne",new IRRegister(irStringType,"s"),new IRRegister(irStringType,"t"));
-        declareInst Malloc=new declareInst(currentBlock,irStringType,"_malloc",new IRRegister(irIntType,"size"));
+        declareInst Length = new declareInst(currentBlock, irIntType, "__string.length", new IRRegister(irStringType, "s"));
+        declareInst SubString = new declareInst(currentBlock, irStringType, "__string.substring", new IRRegister(irStringType, "s"), new IRRegister(irIntType, "l"), new IRRegister(irIntType, "r"));
+        declareInst ParseInt = new declareInst(currentBlock, irIntType, "__string.parseInt", new IRRegister(irStringType, "s"));
+        declareInst Ord = new declareInst(currentBlock, irIntType, "__string.ord", new IRRegister(irStringType, "s"), new IRRegister(irIntType, "x"));
+        declareInst Add = new declareInst(currentBlock, irStringType, "__string.add", new IRRegister(irStringType, "s"), new IRRegister(irStringType, "t"));
+        declareInst Slt = new declareInst(currentBlock, irBoolType, "__string.slt", new IRRegister(irStringType, "s"), new IRRegister(irStringType, "t"));
+        declareInst Sle = new declareInst(currentBlock, irBoolType, "__string.sle", new IRRegister(irStringType, "s"), new IRRegister(irStringType, "t"));
+        declareInst Sgt = new declareInst(currentBlock, irBoolType, "__string.sgt", new IRRegister(irStringType, "s"), new IRRegister(irStringType, "t"));
+        declareInst Sge = new declareInst(currentBlock, irBoolType, "__string.sge", new IRRegister(irStringType, "s"), new IRRegister(irStringType, "t"));
+        declareInst Eq = new declareInst(currentBlock, irBoolType, "__string.eq", new IRRegister(irStringType, "s"), new IRRegister(irStringType, "t"));
+        declareInst Ne = new declareInst(currentBlock, irBoolType, "__string.ne", new IRRegister(irStringType, "s"), new IRRegister(irStringType, "t"));
+        declareInst Malloc = new declareInst(currentBlock, irStringType, "_malloc", new IRRegister(irIntType, "size"));
 
         root.DeclareList.add(Print);
         root.DeclareList.add(PrintLn);
@@ -87,7 +89,7 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
         root.DeclareList.add(Ne);
         root.DeclareList.add(Malloc);
 
-        currentBlock=null;
+        currentBlock = null;
 
     }
 
@@ -110,6 +112,7 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
                 irType = irVoidType;
                 break;
             default:
+                //debug: class A{int a,A M}
                 irType = new IRPtrType(structTypeMap.get(type.typeName), 1);
         }
         return irType;
@@ -118,6 +121,14 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
     //=================================================Definition=======================================================
     @Override
     public void visit(RootNode it) {
+        //collect StructType
+        for(int i=0;i<it.DefList.size();++i){
+            if(it.DefList.get(i) instanceof ClassDefNode){
+                ClassDefNode def=(ClassDefNode) it.DefList.get(i);
+                IRClassType classType=new IRClassType(def.name,def.varMem.size()<<2);
+                structTypeMap.put(classType.name,classType);
+            }
+        }
         for (int i = 0; i < it.DefList.size(); ++i) {
             if (it.DefList.get(i) instanceof ClassDefNode) {
                 it.DefList.get(i).accept(this);
@@ -139,12 +150,11 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
         //globalVara
         if (currentScope == globalScope) {
             IRFunction globalInit = IRFunction.globalVarInit(it.varName);
+            currentFunc = globalInit;
+            currentBlock = currentFunc.entry;
             if (it.init != null) {
-                currentFunc = globalInit;
-                currentBlock = currentFunc.entry;
+
                 it.init.accept(this);
-                currentBlock=null;
-                currentFunc=null;
             }
             //全局定义数组 int [][]a=new int [][];   在getIRType中已经处理了这种情况
             IRGlobalVal gVal = new IRGlobalVal(getIRType(it.type), it.varName);
@@ -161,19 +171,23 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
                     globalInit.entry.insts.add(2, new retInst(null, BuiltinElements.irVoidConst));
                     globalInit.blocks.add(globalInit.entry);
                     root.funcList.add(globalInit);
+                    vara_init.add(new callInst(globalInit.entry, globalInit.name, null));
                 }
             }
             //int m ; A m;
             else if (it.init == null) {
                 gVal.init = gVal.type.defaultValue();
             } else {
+                //int [][]a
                 gVal.init = it.init.entity.type.defaultValue();
-                globalInit.entry.insts.add( new storeInst(null, gVal, it.init.entity));
-                globalInit.entry.insts.add( new retInst(null, BuiltinElements.irVoidConst));
-                globalInit.blocks.add(globalInit.entry);
-                root.funcList.add(globalInit);
+                currentBlock.insts.add(new storeInst(null, gVal, it.init.entity));
+                currentBlock.insts.add(new retInst(null, BuiltinElements.irVoidConst));
+                currentFunc.blocks.add(currentBlock);
+                root.funcList.add(currentFunc);
+                vara_init.add(new callInst(globalInit.entry, globalInit.name, null));
             }
-
+            currentBlock = null;
+            currentFunc = null;
             root.globalVarList.add(gVal);
             globalScope.addVar(it.varName, gVal);
         }
@@ -216,11 +230,12 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
         currentBlock = currentFunc.entry;
         if (currentClass != null) addPara("this", new IRRegister(currentClass.asPtr(), "this"));
         if (it.params != null) it.params.accept(this);
+        if (it.isMain) vara_init.forEach(vara -> currentBlock.addInst(vara));
         it.stmts.forEach(stmt -> stmt.accept(this));
-        if (!currentFunc.isReturned) {
+        if (!currentFunc.isReturned || !currentBlock.isFinished) {
             currentBlock.addInst(new retInst(currentBlock, currentFunc.returnType.defaultValue()));
-            currentFunc.blocks.add(currentBlock);
         }
+        if (currentBlock != null && currentBlock.insts!=null &&currentBlock.insts.size()!=0) currentFunc.blocks.add(currentBlock);
         root.funcList.add(currentFunc);
         currentScope = currentScope.parentScope;
         currentFunc = null;
@@ -254,7 +269,7 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
     @Override
     public void visit(ClassDefNode it) {
         currentScope = new Scope(currentScope, it);
-        currentClass = new IRClassType(it.name);
+        currentClass = structTypeMap.get(it.name);
         int size = 0;
         int num = -1;
         for (int i = 0; i < it.varList.size(); ++i) {
@@ -276,7 +291,7 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
             func.accept(this);
         }
         root.structTypeList.add(currentClass);
-        structTypeMap.put(it.name, currentClass);
+        structDetailMap.put(it.name, currentClass);
         currentClass = null;
         currentScope = currentScope.parentScope;
     }
@@ -285,7 +300,7 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
 
     @Override
     public void visit(ExprStmtNode it) {
-        it.expr.accept(this);
+        if (it.expr != null) it.expr.accept(this);
     }
 
 
@@ -340,7 +355,7 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
             it.returnExpr.accept(this);
             currentBlock.addInst(new retInst(currentBlock, it.returnExpr.entity));
         } else currentBlock.addInst(new retInst(currentBlock));
-        currentFunc.blocks.add(currentBlock);
+//        currentFunc.blocks.add(currentBlock);
         currentFunc.isReturned = true;
     }
 
@@ -358,7 +373,7 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
     public void visit(ForStmtNode it) {
         currentScope = new Scope(currentScope);
         if (it.varDef != null) it.varDef.accept(this);
-        else it.init.accept(this);
+        else if(it.init!=null) it.init.accept(this);
 
         IRBasicBlock tmpBeginBlock = curBeginBlock;
         IRBasicBlock tmpEndBlock = curEndBlock;
@@ -372,13 +387,16 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
         currentFunc.blocks.add(currentBlock);
 
         currentBlock = conditionBlock;
-        it.condition.accept(this);
-        IREntity cond = it.condition.entity;
+        IREntity cond=irBoolTrue;
+        if(it.condition!=null){
+            it.condition.accept(this);
+            cond = it.condition.entity;
+        }
         currentBlock.addInst(new brInst(currentBlock, cond, bodyBlock, curEndBlock));
         currentFunc.blocks.add(currentBlock);
 
         currentBlock = bodyBlock;
-        it.stmts.forEach(stmt -> stmt.accept(this));
+        if (it.stmts.size() != 0) it.stmts.forEach(stmt -> stmt.accept(this));
         currentBlock.addInst(new jumpInst(currentBlock, curBeginBlock));
         currentFunc.blocks.add(currentBlock);
 
@@ -461,9 +479,13 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
             case "!" -> new binaryInst(currentBlock, "^", res, ptr, BuiltinElements.irBoolTrue);
             default -> throw new irError("it should not exist", it.pos);
         };
-        IREntity primary = currentScope.getIRVar(it.expr.str);
-        if (it.op.equals("++") || it.op.equals("--")) currentBlock.addInst(new storeInst(currentBlock, primary, res));
         currentBlock.addInst(ins);
+        if (it.op.equals("++") || it.op.equals("--")) {
+            it.expr.be_assigned=true;
+            it.expr.accept(this);
+            IREntity primary=it.expr.entity;
+            currentBlock.addInst(new storeInst(currentBlock, primary, res));
+        }
         it.entity = res;
     }
 
@@ -471,6 +493,9 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
     public void visit(PreAddExprNode it) {
         it.expr.accept(this);
         IREntity ptr = it.expr.entity;
+        it.expr.be_assigned=true;
+        it.expr.accept(this);
+        IREntity primary=it.expr.entity;
         IRRegister res = new IRRegister(ptr.type, currentFunc.getRegId());
         IRInst ins;
         ins = switch (it.op) {
@@ -479,7 +504,6 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
             default -> throw new irError("it should not exist", it.pos);
         };
         currentBlock.addInst(ins);
-        IREntity primary = currentScope.getIRVar(it.expr.str);
         currentBlock.addInst(new storeInst(currentBlock, primary, res));
         it.entity = res;
     }
@@ -537,7 +561,7 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
         paras.add(rhs);
         if (it.isCmp && it.lhs.type.equals(StringType)) {
             IRRegister reg = new IRRegister(irBoolType, currentFunc.getRegId());
-            String cond = "__string_";
+            String cond = "__string.";
             switch (it.op) {
                 case "<" -> cond += "slt";
                 case ">" -> cond += "sgt";
@@ -554,7 +578,7 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
             it.entity = reg;
         } else if (it.isAdd && it.lhs.type.equals(StringType)) {
             IRRegister rest = new IRRegister(new IRPtrType(irCharType), currentFunc.getRegId());
-            currentBlock.addInst(new callInst(currentBlock, rest.type, rest, "__string_add", paras));
+            currentBlock.addInst(new callInst(currentBlock, rest.type, rest, "__string.add", paras));
             it.entity = rest;
         } else {
             IRRegister reg = new IRRegister(lhs.type, currentFunc.getRegId());
@@ -611,10 +635,16 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
         //A.a中的A
         //全局寻找classType，然后返回IREntity type为转向classType的ptr
         else if (it.type.isClass) {
-            IRClassType classType = structTypeMap.get(it.type.typeName);
-            IRRegister res = new IRRegister(new IRPtrType(classType), currentFunc.getRegId());
-            currentBlock.addInst(new loadInst(currentBlock, res, currentScope.getIRVar(it.str)));
-            it.entity = res;
+            if(it.be_assigned){
+                it.entity=currentScope.getIRVar(it.str);
+            }
+            else{
+                IRClassType classType = structDetailMap.get(it.type.typeName);
+                IRRegister res = new IRRegister(new IRPtrType(classType), currentFunc.getRegId());
+                currentBlock.addInst(new loadInst(currentBlock, res, currentScope.getIRVar(it.str)));
+                it.entity = res;
+            }
+
         }
         //在function中的变量 从当前scope依次向上寻找，返回entity
         //也有可能这里的vara是class中的变量
@@ -675,13 +705,15 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
                 name = cName + "." + name;
                 para.add(callerEntity);
             } else if (cType instanceof IRIntType && ((IRIntType) cType).bitWidth == 8) {   //string
-                name = "__string_" + name;
                 fType = getIRType(globalScope.classMems.get("string").funcMem.get(name).returnType);
+                name = "__string." + name;
                 para.add(callerEntity);
             } else {                //array
-                name = "_array_size";
-                fType = getIRType(globalScope.classMems.get("int").funcMem.get(name).returnType);
-                para.add(callerEntity);
+                IREntity sizePtr = offsetPtr(callerEntity, BuiltinElements.irIntConstn1);
+                IRRegister ret = new IRRegister(irIntType, currentFunc.getRegId());
+                currentBlock.addInst(new loadInst(currentBlock, ret, sizePtr));
+                it.entity = ret;
+                return;
             }
         } else throw new irError("[function expression]", it.pos);
         if (it.lists != null && it.lists.exprs.size() != 0) {
@@ -719,8 +751,8 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
         IRRegister resPtr = new IRRegister(new IRPtrType(type), currentFunc.getRegId());
 
         currentBlock.addInst(new getelementptrInstr(currentBlock, resPtr, classPtr, BuiltinElements.irIntConst0, new IRConst(irIntType, offset)));
-        if(it.be_assigned){
-            it.entity=resPtr;
+        if (it.be_assigned) {
+            it.entity = resPtr;
             return;
         }
         IRRegister res = new IRRegister(type, currentFunc.getRegId());
@@ -728,7 +760,7 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
         it.entity = res;
     }
 
-    private IREntity getArrayBytes(IREntity size) {
+    private IREntity getArrayBytes(IRType ptr,IREntity size) {
         if (size instanceof IRConst) {
             //数组本身加上数组长度
             int bytes = ((IRConst) size).i32 * 4 + 4;
@@ -755,7 +787,7 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
         if (dimSizes.get(layer) == null) return irNullConst;
         dimSizes.get(layer).accept(this);
         IREntity size = dimSizes.get(layer).entity;
-        IREntity bytes = getArrayBytes(size);
+        IREntity bytes = getArrayBytes(ptrType,size);
 
         //malloc
         IRRegister mallocPtr = new IRRegister(ptrType, currentFunc.getRegId());
@@ -775,12 +807,14 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
             IRBasicBlock bodyBlock = new IRBasicBlock(currentFunc);
             IRBasicBlock endBlock = new IRBasicBlock(currentFunc);
 
+            //int i=0;
             IRRegister IPtr = new IRRegister(BuiltinElements.irIntPtrType, currentFunc.getRegId());
             currentBlock.addInst(new allocateInst(currentBlock, IPtr, BuiltinElements.irIntType));
-            currentBlock.addInst(new storeInst(currentBlock, BuiltinElements.irIntConst0, IPtr));
+            currentBlock.addInst(new storeInst(currentBlock, IPtr, BuiltinElements.irIntConst0));
             currentBlock.addInst(new jumpInst(currentBlock, condBlock));
             currentFunc.blocks.add(currentBlock);
 
+            //cond:i<size
             currentBlock = condBlock;
             IRRegister IVal = new IRRegister(BuiltinElements.irIntType, currentFunc.getRegId());
             currentBlock.addInst(new loadInst(currentBlock, IVal, IPtr));
@@ -789,14 +823,17 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
             currentBlock.addInst(new brInst(currentBlock, cond, bodyBlock, endBlock));
             currentFunc.blocks.add(currentBlock);
 
+            //body:create next layer array
             currentBlock = bodyBlock;
             IREntity nextLayerPtr = createNewArray(ptrType.pointToType(), layer + 1, dimSizes);
             IRRegister curPtr = offsetPtr(realArrayPtr, IVal);
-            currentBlock.addInst(new storeInst(currentBlock, nextLayerPtr, curPtr));
+            currentBlock.addInst(new storeInst(currentBlock, curPtr, nextLayerPtr));
 
+            //++i
             IRRegister IValPlus = new IRRegister(BuiltinElements.irIntType, currentFunc.getRegId());
-            currentBlock.addInst(new binaryInst(currentBlock, "+", IValPlus, IVal, BuiltinElements.irIntConstn1));
-            currentBlock.addInst(new storeInst(currentBlock, IValPlus, IPtr));
+            currentBlock.addInst(new binaryInst(currentBlock, "+", IValPlus, IVal, BuiltinElements.irIntConst1));
+            currentBlock.addInst(new storeInst(currentBlock, IPtr, IValPlus));
+            currentBlock.addInst(new jumpInst(currentBlock, condBlock));
             currentFunc.blocks.add(currentBlock);
 
             currentBlock = endBlock;
@@ -810,9 +847,9 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
         //class
         if (it.dim == 0) {
             IRClassType classType = (IRClassType) ((IRPtrType) type).baseType;
-            IRRegister res = new IRRegister(new IRPtrType(new IRIntType(8)), currentFunc.getRegId());
+            IRRegister res = new IRRegister(new IRPtrType(irIntType), currentFunc.getRegId());
             ArrayList<IREntity> para = new ArrayList<>();
-            para.add(new IRConst(BuiltinElements.irIntType, classType.size + 8));
+            para.add(new IRConst(BuiltinElements.irIntType, classType.size + 4));
             currentBlock.addInst(new callInst(currentBlock, res.type, res, "_malloc", para));
             it.entity = res;
 
@@ -832,15 +869,16 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
         it.name.accept(this);
         IREntity arrDest = it.name.entity;
         IRRegister res = null;
-        for (ExprNode index : it.index) {
+        for (int i = 0; i < it.index.size(); ++i) {
+            ExprNode index = it.index.get(i);
             index.accept(this);
-            arrDest=offsetPtr(arrDest,index.entity);
-            if(!(arrDest.type.pointToType() instanceof IRPtrType) && it.be_assigned) {
-                it.entity=arrDest;
+            arrDest = offsetPtr(arrDest, index.entity);
+            if (i == it.index.size() - 1 && (it.be_assigned || (arrDest.type instanceof IRPtrType &&((IRPtrType) arrDest.type).baseType instanceof IRClassType) )) {
+                it.entity = arrDest;
                 return;
             }
-            res=new IRRegister(arrDest.type.pointToType(), currentFunc.getRegId());
-            currentBlock.addInst(new loadInst(currentBlock,res,arrDest));
+            res = new IRRegister(arrDest.type.pointToType(), currentFunc.getRegId());
+            currentBlock.addInst(new loadInst(currentBlock, res, arrDest));
             arrDest = res;
         }
         it.entity = res;

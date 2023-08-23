@@ -33,6 +33,10 @@ public class FuncDefNode extends DefNode {
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }
+
+
+    //=============================IR========================
+    public boolean isMain=false;
 }
 
 
