@@ -1,6 +1,7 @@
 package MiddleEnd;
 
 import IR.Entity.IRConst;
+import IR.Entity.IRGlobalVal;
 import IR.IRBasicBlock;
 import IR.IRFunction;
 import IR.IRProgram;
@@ -39,6 +40,12 @@ public class IRPrinter implements IRVisitor {
         ans+=" }\n";
         os.println(ans);
     }
+
+    @Override
+    public void visit(IRGlobalVal it) {
+
+    }
+
     @Override
     public void visit(IRFunction it) {
         os.println(it.toString());

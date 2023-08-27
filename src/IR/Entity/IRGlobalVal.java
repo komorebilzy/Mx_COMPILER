@@ -1,6 +1,7 @@
 package IR.Entity;
 
 import IR.IRBasicBlock;
+import IR.IRVisitor;
 import IR.Type.IRPtrType;
 import IR.Type.IRType;
 
@@ -28,5 +29,10 @@ public class IRGlobalVal extends IREntity{
     public String toString() {
         return "ptr "+getValue();
     }
+
+    public void accept(IRVisitor visitor){
+        visitor.visit(this);
+    }
+
 
 }

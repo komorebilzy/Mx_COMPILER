@@ -38,4 +38,8 @@ ravel/
 
 src/META-INF
 test.ll
+test.in
 test
+test.out
+test.s
+output.s.source

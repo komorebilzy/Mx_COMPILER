@@ -1,5 +1,6 @@
 package IR;
 
+import IR.Entity.IRGlobalVal;
 import IR.Inst.*;
 import IR.Type.IRClassType;
 
@@ -8,6 +9,7 @@ public interface IRVisitor {
     public void visit(IRFunction it);
     public void visit(IRProgram it);
     public void visit(IRClassType it);
+    public void visit(IRGlobalVal it);
 
     public void visit(allocateInst it);
     public void visit(binaryInst it);

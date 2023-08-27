@@ -23,8 +23,6 @@ public abstract class ExprNode extends ASTNode {
 
     //用于判断是否需要添加load指令 如果是被assign 则不需要 否则需要再创建一个新的register
     public boolean be_assigned=false;
-    public boolean be_built=false;
-    public IRInst built_func=null;
 
 
 }

@@ -72,5 +72,6 @@ public class Scope {
     public IREntity getIRVar(String name) {
         if (entities.containsKey(name)) return entities.get(name);
         return parentScope != null ? parentScope.getIRVar(name) : null;
+
     }
 }

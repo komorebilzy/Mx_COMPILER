@@ -8,7 +8,7 @@ public class IRConst extends IREntity {
         BOOL, INT, STRING, NULL, VOID
     }
 
-    public constType cType;
+    public  constType cType;
     public boolean i1;
     public int i32;
     public String str;

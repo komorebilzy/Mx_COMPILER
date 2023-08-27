@@ -21,6 +21,7 @@ public class IRFunction {
     public IRBasicBlock entry=new IRBasicBlock("entry");
     public ArrayList<IREntity> params = new ArrayList<>();
     public ArrayList<IRBasicBlock> blocks = new ArrayList<>();
+    public ArrayList<allocateInst> allocas=new ArrayList<>();
     public long labelNum=-1;
     public long var=-1;
     public boolean isReturned=false;
@@ -37,6 +38,9 @@ public class IRFunction {
     }
 
     public String toString() {
+        for(int i=0;i<allocas.size();++i){
+            entry.insts.addFirst(allocas.get(i));
+        }
         StringBuilder ans = new StringBuilder("define " + returnType.toString() + " @" + name + "(");
         for(int i=0;i<params.size();++i){
             ans.append(params.get(i).toString());
@@ -46,7 +50,6 @@ public class IRFunction {
         for(IRBasicBlock block:blocks){
             ans.append(block.toString()).append("\n");
         }
-//        if(returnBlock!=null) ans.append(returnBlock.toString()).append("\n");
         ans.append("}\n");
         return ans.toString();
     }
@@ -65,7 +68,7 @@ public class IRFunction {
     }
 
     public String getRegId(){
-        return  Long.toString(++var);
+        return  "."+Long.toString(++var);
     }
 
 }

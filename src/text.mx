@@ -2334,7 +2334,6 @@ int[] dijkstra(int s) {
 }
 
 
-
 int main() {
   init();
   int i;
