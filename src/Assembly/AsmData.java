@@ -26,7 +26,8 @@ public class AsmData {
 
 
     public String toString(){
-        StringBuilder ans=new StringBuilder("\tsection\t.");
+        //string：rodata + asciz     value: data + word
+        StringBuilder ans=new StringBuilder("\t.section\t.");
         String dataType=isString?"rodata":"data";     //rodata:只读数据  data：可读可写数据
         ans.append(dataType).append("\n");
         String siz =isString?"asciz":"word";   //asciz:字符串

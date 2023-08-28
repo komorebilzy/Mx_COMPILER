@@ -48,6 +48,7 @@ public class AsmFunction {
 
     public void finish() {
         int allOffset = offset + paraOffset;
+        //sp 始终保持 16 字节对齐
         int spOffset = (allOffset % 16 == 0) ? allOffset :( ((allOffset >> 4) + 1) << 4);
         AsmBlock lastBlock=blocks.getLast();
         AsmBlock firstBlock=blocks.getFirst();
@@ -71,11 +72,13 @@ public class AsmFunction {
         }
 
         else{
+            //调整栈指针和保存寄存器的值
             firstBlock.add_front(new AsmBinaryS("addi",fp,sp,new Imm(spOffset)));
             firstBlock.add_front(new AsmMemoryS("sw",fp,sp,spOffset-8));
             firstBlock.add_front(new AsmMemoryS("sw",ra,sp,spOffset-4));
             firstBlock.add_front(new AsmBinaryS("addi",sp,sp,new Imm(-spOffset)));
 
+            //恢复寄存器的值和还原栈指针
             lastBlock.insert_before(lastInst,new AsmMemoryS("lw",fp,sp,spOffset-8));
             lastBlock.insert_before(lastInst,new AsmMemoryS("lw",ra,sp,spOffset-4));
             lastBlock.insert_before(lastInst,new AsmBinaryS("addi",sp,sp,new Imm(spOffset)));

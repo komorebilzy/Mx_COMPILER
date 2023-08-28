@@ -1,4 +1,8 @@
 import AST.RootNode;
+import Assembly.AsmModule;
+import BackEnd.AsmPrinter;
+import BackEnd.InsSelector;
+import BackEnd.RegAlloca;
 import FrontEnd.ASTBuilder;
 import FrontEnd.SemanticChecker;
 import FrontEnd.SymbolCollector;
@@ -17,15 +21,17 @@ import java.io.*;
 public class Compiler {
     public static void main(String[] args) throws Exception{
         InputStream input = System.in;
-        PrintStream output=System.out;
+        PrintStream IROutput = null;
+        PrintStream AsmOutput = System.out;
         boolean online=false;
 
         if(!online) {
             input=new FileInputStream("src/text.mx");
-            output=new PrintStream(new FileOutputStream("test.ll"));
+            IROutput = new PrintStream(new FileOutputStream("test.ll"));
+            AsmOutput = new PrintStream(new FileOutputStream("test.s"));
         }
         try {
-            compile(input,output);
+            compile(input,IROutput,AsmOutput);
         }
         catch (Error err){
             System.err.println(err.toString());
@@ -33,7 +39,7 @@ public class Compiler {
         }
     }
 
-    public static void compile(InputStream input, PrintStream output) throws Exception{
+    public static void compile(InputStream input, PrintStream IROutput, PrintStream AsmOutput) throws Exception{
         GlobalScope globalScope= new GlobalScope();
 
         MxLexer lexer=new MxLexer(CharStreams.fromStream(input));
@@ -53,6 +59,11 @@ public class Compiler {
 
         IRProgram rootIR=new IRProgram();
         new IRBuilder(rootIR,globalScope).visit(ASTRoot);
-        new IRPrinter(output).visit(rootIR);
+        new IRPrinter(IROutput).visit(rootIR);
+
+        AsmModule asmModule = new AsmModule();
+        new InsSelector(asmModule).visit(rootIR);
+        new RegAlloca().visit(asmModule);
+        new AsmPrinter(AsmOutput).print(asmModule);
     }
 }

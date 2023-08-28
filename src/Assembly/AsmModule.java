@@ -14,7 +14,7 @@ public class AsmModule {
     }
 
     public String toString(){
-        StringBuilder ans=new StringBuilder("\t.text\n");
+        StringBuilder ans=new StringBuilder("\t.section\t.text\n");
         for(AsmFunction func :functions){
             ans.append(func.toString()).append("\n");
         }

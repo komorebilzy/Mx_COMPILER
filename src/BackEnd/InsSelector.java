@@ -80,7 +80,7 @@ public class InsSelector implements IRVisitor {
     }
 
     private void collectBlock(IRBasicBlock block) {
-        String label = block.getLabel().equals("entry") ? curFunction.name : block.getLabel() + curFunction.id;
+        String label = block.name.equals("entry") ? curFunction.name : block.getLabel() + curFunction.id;
         var asmBlock = new AsmBlock(label);
         blockMap.put(block, asmBlock);
         curFunction.addBlock(asmBlock);
@@ -88,7 +88,7 @@ public class InsSelector implements IRVisitor {
 
     @Override
     public void visit(IRProgram it) {
-        it.DeclareList.forEach(vara -> vara.accept(this));
+        it.globalVarList.forEach(vara -> vara.accept(this));
         it.funcList.forEach(func -> func.accept(this));
     }
 
@@ -143,7 +143,7 @@ public class InsSelector implements IRVisitor {
         else if(it.init instanceof IRGlobalVal g){
             module.addData(new AsmData(it.name,g.name,false));
         }
-        //int c=1;
+        //int c=1; int m
         else{
             int val=getConstVal(it.init);
             module.addData(new AsmData(it.name,val));
@@ -240,7 +240,6 @@ public class InsSelector implements IRVisitor {
                 addInst(new AsmCmpS("snez", rd, tmp));
             }
         }
-
     }
 
     @Override

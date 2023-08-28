@@ -14,6 +14,6 @@ public class AsmBinaryS extends AsmInst{
 
     @Override
     public String toString() {
-        return op + "\t" + rd.toString()+", "+rs2.toString();
+        return op + "\t" + rd.toString()+", "+rs1.toString()+", "+ rs2.toString();
     }
 }
