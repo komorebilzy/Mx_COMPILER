@@ -64,7 +64,6 @@ public class Compiler {
 
         AsmModule asmModule = new AsmModule();
         try{
-
             new InsSelector(asmModule).visit(rootIR);
         }
         catch (Error err){
