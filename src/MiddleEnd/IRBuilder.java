@@ -271,6 +271,7 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
         addPara("this", new IRRegister(currentClass.asPtr(), "this"));
         it.suites.stmts.forEach(stmt -> stmt.accept(this));
         currentBlock.addInst(new retInst(currentBlock, BuiltinElements.irVoidConst));
+        currentBlock.isReturned=true;
         currentFunc.blocks.add(currentBlock);
         root.funcList.add(currentFunc);
         currentBlock = null;
