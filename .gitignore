@@ -43,3 +43,6 @@ test
 test.out
 test.s
 output.s.source
+patch.sh
+patch2.sh
+test.bash
