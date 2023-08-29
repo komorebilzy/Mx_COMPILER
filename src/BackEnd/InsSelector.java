@@ -82,6 +82,7 @@ public class InsSelector implements IRVisitor {
     private void collectBlock(IRBasicBlock block) {
         String label = block.name.equals("entry") ? curFunction.name : block.name +"_"+ curFunction.id;
         var asmBlock = new AsmBlock(label);
+        if(block.isReturned) asmBlock.isReturned=true;
         blockMap.put(block, asmBlock);
         curFunction.addBlock(asmBlock);
     }
@@ -182,13 +183,15 @@ public class InsSelector implements IRVisitor {
         //参数一般都放在a【0-7】
         //进行函数调用时，每个参数都使用一个寄存器。因此根据 RISC-V Calling Convention，
         // 函数的第一至第八个入参分别存放于 a0-7 中，剩下的参数将存放于栈中（sp 指向第一个放不下的参数），返回值放在 a0
-        for (int i = 0; i < Integer.min(8, it.args.size()); ++i) {
-            addInst(new AsmMv(a(i), getReg(it.args.get(i))));
-        }
         int paraOffset = 0;
-        for (int i = 8; i < it.args.size(); ++i) {
-            addInst(new AsmMemoryS("sw", getReg(it.args.get(i)), sp, paraOffset));
-            paraOffset += 4;
+        if(it.args!=null){
+            for (int i = 0; i < Integer.min(8, it.args.size()); ++i) {
+                addInst(new AsmMv(a(i), getReg(it.args.get(i))));
+            }
+            for (int i = 8; i < it.args.size(); ++i) {
+                addInst(new AsmMemoryS("sw", getReg(it.args.get(i)), sp, paraOffset));
+                paraOffset += 4;
+            }
         }
         curFunction.paraOffset = Integer.max(paraOffset, curFunction.paraOffset);
         addInst(new AsmCall(it.funcName));

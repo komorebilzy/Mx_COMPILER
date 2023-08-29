@@ -5,6 +5,7 @@ import Assembly.AsmFunction;
 import Assembly.AsmModule;
 import Assembly.Instruction.*;
 import Assembly.Operand.*;
+import Util.Error.codgenError;
 
 import static Assembly.Operand.PhyReg.*;
 
@@ -18,7 +19,7 @@ public class RegAlloca {
             if (!curFunction.containsReg(v)) curFunction.allocate(v);
             int offset = curFunction.getVarRegOffset(v);
 
-            if (-2048 <= offset && offset <= 2048) {
+            if (-2048 <= offset && offset < 2048) {
                 if (isLoad) curBlock.insert_before(ins, new AsmMemoryS("lw", reg, fp, offset));
                 else curBlock.insert_after(ins, new AsmMemoryS("sw", reg, fp, offset));
             } else {

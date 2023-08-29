@@ -5,6 +5,7 @@ import Assembly.Instruction.AsmInst;
 public class AsmBlock {
     public AsmInst headInst=null,tailInst=null;
     public String label;
+    public boolean isReturned=false;
 
     public AsmBlock(String label){
         this.label=label;

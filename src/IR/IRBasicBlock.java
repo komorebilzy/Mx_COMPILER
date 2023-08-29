@@ -9,6 +9,7 @@ public class IRBasicBlock {
     public LinkedList<IRInst> insts = new LinkedList<>();
     IRFunction inFunc;
     public boolean isFinished = false;
+    public boolean isReturned=false;
 
     public IRBasicBlock(IRFunction inFunc) {
         this.name = inFunc.getLabel();

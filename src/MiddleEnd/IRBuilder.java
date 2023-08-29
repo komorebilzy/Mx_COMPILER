@@ -185,6 +185,7 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
                     globalInit.entry.insts.add(0, new loadInst(null, tmp, entity));
                     globalInit.entry.insts.add(1, new storeInst(null, gVal, tmp));
                     globalInit.entry.insts.add(2, new retInst(null, BuiltinElements.irVoidConst));
+                    globalInit.entry.isReturned=true;
                     globalInit.blocks.add(globalInit.entry);
                     root.funcList.add(globalInit);
                     vara_init.add(new callInst(globalInit.entry, globalInit.name, null));
@@ -198,6 +199,7 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
                 gVal.init = it.init.entity.type.defaultValue();
                 currentBlock.insts.add(new storeInst(null, gVal, it.init.entity));
                 currentBlock.insts.add(new retInst(null, BuiltinElements.irVoidConst));
+                currentBlock.isReturned=true;
                 currentFunc.blocks.add(currentBlock);
                 root.funcList.add(currentFunc);
                 vara_init.add(new callInst(globalInit.entry, globalInit.name, null));
@@ -242,6 +244,7 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
         it.stmts.forEach(stmt -> stmt.accept(this));
         if (!currentFunc.isReturned || !currentBlock.isFinished) {
             currentBlock.addInst(new retInst(currentBlock, currentFunc.returnType.defaultValue()));
+            currentBlock.isReturned=true;
         }
         if (currentBlock != null && currentBlock.insts != null && currentBlock.insts.size() != 0)
             currentFunc.blocks.add(currentBlock);
@@ -351,7 +354,8 @@ public class IRBuilder implements ASTVisitor, BuiltinElements {
             it.returnExpr.accept(this);
             currentBlock.addInst(new retInst(currentBlock, it.returnExpr.entity));
         } else currentBlock.addInst(new retInst(currentBlock));
-//        currentFunc.blocks.add(currentBlock);
+//       specially for codgen---func finish
+        currentBlock.isReturned=true;
         currentFunc.isReturned = true;
     }
 
