@@ -20,6 +20,10 @@ public class IRPrinter implements IRVisitor {
 
     @Override
     public void visit(IRProgram it) {
+        if(os==null) {
+            it.funcList.forEach(IRFunction::addAlloca);
+            return;
+        }
         it.DeclareList.forEach(dec->os.println(dec.toString()));
         for(int i=0;i<it.globalVarList.size();++i){
             var vara=it.globalVarList.get(i);

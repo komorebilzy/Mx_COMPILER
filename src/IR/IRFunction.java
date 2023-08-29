@@ -37,6 +37,11 @@ public class IRFunction {
         params.addAll(List.of(para));
     }
 
+    public void addAlloca(){
+        for(int i=0;i<allocas.size();++i){
+            entry.insts.addFirst(allocas.get(i));
+        }
+    }
     public String toString() {
         for(int i=0;i<allocas.size();++i){
             entry.insts.addFirst(allocas.get(i));

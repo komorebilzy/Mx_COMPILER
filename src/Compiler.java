@@ -63,11 +63,8 @@ public class Compiler {
         new IRPrinter(IROutput).visit(rootIR);
 
         AsmModule asmModule = new AsmModule();
-
         new InsSelector(asmModule).visit(rootIR);
-
         new RegAlloca().visit(asmModule);
-
         new AsmPrinter(AsmOutput).print(asmModule);
     }
 }
