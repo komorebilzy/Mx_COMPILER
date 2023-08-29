@@ -14,6 +14,6 @@ public class AsmCmpS extends AsmInst{
 
     @Override
     public String toString() {
-        return op+ "\t"+rd.toString()+", "+rd.toString();
+        return op+ "\t"+rd.toString()+", "+rs.toString();
     }
 }

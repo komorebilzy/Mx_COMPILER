@@ -49,6 +49,7 @@ public class RegAlloca {
 
     public void visit(AsmBlock it) {
         curBlock = it;
+        //最后一条指令不需要收集 jump or ret
         for (AsmInst inst = it.headInst; inst != it.tailInst; inst = inst.next) visit(inst);
     }
 
@@ -59,6 +60,7 @@ public class RegAlloca {
         else if (it instanceof AsmMemoryS ins) visit(ins);
         else if (it instanceof AsmMv ins) visit(ins);
         else if (it instanceof AsmCmpS ins) visit(ins);
+        else if(it instanceof AsmBranch ins) visit(ins);
     }
 
     public void visit(AsmBinaryS it) {
@@ -93,7 +95,7 @@ public class RegAlloca {
 
     public void visit(AsmMv it){
         it.rd=(Reg) allocatePhyReg(it,it.rd,t(0),false);
-        it.rs=(Reg) allocatePhyReg(it,it.rs,t(1),false);
+        it.rs=(Reg) allocatePhyReg(it,it.rs,t(1),true);
     }
 
     public void visit(AsmCmpS it){

@@ -11,6 +11,7 @@ import MiddleEnd.IRBuilder;
 import MiddleEnd.IRPrinter;
 import Parser.MxLexer;
 import Parser.MxParser;
+import Util.Error.codgenError;
 import Util.MxErrorListener;
 import Util.Scope.GlobalScope;
 import org.antlr.v4.runtime.CharStreams;
@@ -62,8 +63,23 @@ public class Compiler {
         new IRPrinter(IROutput).visit(rootIR);
 
         AsmModule asmModule = new AsmModule();
-        new InsSelector(asmModule).visit(rootIR);
-        new RegAlloca().visit(asmModule);
-        new AsmPrinter(AsmOutput).print(asmModule);
+        try{
+            new InsSelector(asmModule).visit(rootIR);
+        }
+        catch (Error err){
+            throw new codgenError("hhh",null);
+        }
+        try {
+            new RegAlloca().visit(asmModule);
+        }
+        catch (Error err){
+            throw new codgenError("yyy",null);
+        }
+        try {
+            new AsmPrinter(AsmOutput).print(asmModule);
+        }
+        catch (Error err){
+            throw new codgenError("xxx",null);
+        }
     }
 }

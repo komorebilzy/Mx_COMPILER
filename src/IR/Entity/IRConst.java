@@ -108,6 +108,10 @@ public class IRConst extends IREntity {
         return super.toString() + " " + getValue();
     }
 
+    //specially for codgen
+    public String getStr(){
+        return str;
+    }
     public boolean isZero() {
         return switch (cType) {
             case BOOL -> !i1;

@@ -80,7 +80,7 @@ public class InsSelector implements IRVisitor {
     }
 
     private void collectBlock(IRBasicBlock block) {
-        String label = block.name.equals("entry") ? curFunction.name : block.getLabel() + curFunction.id;
+        String label = block.name.equals("entry") ? curFunction.name : block.name +"_"+ curFunction.id;
         var asmBlock = new AsmBlock(label);
         blockMap.put(block, asmBlock);
         curFunction.addBlock(asmBlock);
@@ -136,7 +136,7 @@ public class InsSelector implements IRVisitor {
     public void visit(IRGlobalVal it) {
         //String a="ii"
         if(it.isString){
-            String str=it.init.toString();
+            String str=((IRConst)it.init).getStr();
             module.addData(new AsmData(it.name,str));
         }
         //int a=b;
@@ -164,10 +164,10 @@ public class InsSelector implements IRVisitor {
             case "add" -> new AsmBinaryS("add", rd, getReg(it.lhs), getReg(it.rhs));
             case "sub" -> new AsmBinaryS("sub", rd, getReg(it.lhs), getReg(it.rhs));
             case "mul" -> new AsmBinaryS("mul", rd, getReg(it.lhs), getReg(it.rhs));
-            case "sdiv " -> new AsmBinaryS("sdiv", rd, getReg(it.lhs), getReg(it.rhs));
-            case "srem" -> new AsmBinaryS("srem", rd, getReg(it.lhs), getReg(it.rhs));
-            case "shl" -> new AsmBinaryS("shl", rd, getReg(it.lhs), getReg(it.rhs));
-            case "ashr" -> new AsmBinaryS("ashr", rd, getReg(it.lhs), getReg(it.rhs));
+            case "sdiv" -> new AsmBinaryS("div", rd, getReg(it.lhs), getReg(it.rhs));
+            case "srem" -> new AsmBinaryS("rem", rd, getReg(it.lhs), getReg(it.rhs));
+            case "shl" -> new AsmBinaryS("sll", rd, getReg(it.lhs), getReg(it.rhs));
+            case "ashr" -> new AsmBinaryS("sra", rd, getReg(it.lhs), getReg(it.rhs));
             case "and" -> new AsmBinaryS("and", rd, getReg(it.lhs), getReg(it.rhs));
             case "or" -> new AsmBinaryS("or", rd, getReg(it.lhs), getReg(it.rhs));
             case "xor" -> new AsmBinaryS("xor", rd, getReg(it.lhs), getReg(it.rhs));
@@ -180,15 +180,17 @@ public class InsSelector implements IRVisitor {
     @Override
     public void visit(callInst it) {
         //参数一般都放在a【0-7】
+        //进行函数调用时，每个参数都使用一个寄存器。因此根据 RISC-V Calling Convention，
+        // 函数的第一至第八个入参分别存放于 a0-7 中，剩下的参数将存放于栈中（sp 指向第一个放不下的参数），返回值放在 a0
         for (int i = 0; i < Integer.min(8, it.args.size()); ++i) {
             addInst(new AsmMv(a(i), getReg(it.args.get(i))));
         }
-        int offset = 0;
+        int paraOffset = 0;
         for (int i = 8; i < it.args.size(); ++i) {
-            addInst(new AsmMemoryS("sw", getReg(it.args.get(i)), sp, offset));
-            offset += 4;
+            addInst(new AsmMemoryS("sw", getReg(it.args.get(i)), sp, paraOffset));
+            paraOffset += 4;
         }
-        curFunction.paraOffset = Integer.max(offset, curFunction.offset);
+        curFunction.paraOffset = Integer.max(paraOffset, curFunction.paraOffset);
         addInst(new AsmCall(it.funcName));
         if (it.res == null || it.returnType.equals(BuiltinElements.irVoidType)) return;
         addInst(new AsmMv(newVirReg(it.res), a(0)));
@@ -254,13 +256,12 @@ public class InsSelector implements IRVisitor {
 
     @Override
     public void visit(storeInst it) {
-        Reg rd = getReg(it.pointer);
         Reg rs = getReg(it.value);
+        Reg rd = getReg(it.pointer);
         if (it.pointer instanceof IRGlobalVal) {
             addInst(new AsmMemoryS("sw", rs, rd, 0));
         } else if (curFunction.containsReg(rd)) addInst(new AsmMv(rd, rs));
         else addInst(new AsmMemoryS("sw", rs, rd, 0));
-
     }
 
     @Override
@@ -277,6 +278,7 @@ public class InsSelector implements IRVisitor {
 
     @Override
     public void visit(brInst it) {
+        //beqz : branch if equals to zero
         addInst(new AsmBranch("beqz", getReg(it.cond), blockMap.get(it.elseBlock).label));
         addInst(new AsmJ(blockMap.get(it.thenBlock).label));
     }
