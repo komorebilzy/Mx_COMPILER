@@ -69,6 +69,7 @@ public class AsmFunction {
             firstBlock.add_front(new AsmBinaryS("addi", sp, sp, new Imm(-spOffset)));
         }
 
+        // for the functions that contains many return sentence
         for (var lastBlock : blocks) {
             if (lastBlock.isReturned) {
                 AsmInst lastInst = lastBlock.tailInst;

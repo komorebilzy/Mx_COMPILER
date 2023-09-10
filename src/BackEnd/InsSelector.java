@@ -73,17 +73,17 @@ public class InsSelector implements IRVisitor {
         return reg;
     }
 
-    private int getConstVal(IREntity entity){
-        if(((IRConst) entity).cType == IRConst.constType.INT) return ((IRConst) entity).i32;
-        else if(((IRConst) entity).cType == IRConst.constType.BOOL) return ((IRConst) entity).i1?1:0;
-        else if(((IRConst) entity).cType == IRConst.constType.NULL) return 0;
+    private int getConstVal(IREntity entity) {
+        if (((IRConst) entity).cType == IRConst.constType.INT) return ((IRConst) entity).i32;
+        else if (((IRConst) entity).cType == IRConst.constType.BOOL) return ((IRConst) entity).i1 ? 1 : 0;
+        else if (((IRConst) entity).cType == IRConst.constType.NULL) return 0;
         else return -19260817;
     }
 
     private void collectBlock(IRBasicBlock block) {
-        String label = block.name.equals("entry") ? curFunction.name : block.name +"_"+ curFunction.id;
+        String label = block.name.equals("entry") ? curFunction.name : block.name + "_" + curFunction.id;
         var asmBlock = new AsmBlock(label);
-        if(block.isReturned) asmBlock.isReturned=true;
+        if (block.isReturned) asmBlock.isReturned = true;
         blockMap.put(block, asmBlock);
         curFunction.addBlock(asmBlock);
     }
@@ -137,18 +137,18 @@ public class InsSelector implements IRVisitor {
     @Override
     public void visit(IRGlobalVal it) {
         //String a="ii"
-        if(it.isString){
-            String str=((IRConst)it.init).getStr();
-            module.addData(new AsmData(it.name,str));
+        if (it.isString) {
+            String str = ((IRConst) it.init).getStr();
+            module.addData(new AsmData(it.name, str));
         }
         //int a=b;
-        else if(it.init instanceof IRGlobalVal g){
-            module.addData(new AsmData(it.name,g.name,false));
+        else if (it.init instanceof IRGlobalVal g) {
+            module.addData(new AsmData(it.name, g.name, false));
         }
         //int c=1; int m
-        else{
-            int val=getConstVal(it.init);
-            module.addData(new AsmData(it.name,val));
+        else {
+            int val = getConstVal(it.init);
+            module.addData(new AsmData(it.name, val));
         }
     }
 
@@ -185,7 +185,7 @@ public class InsSelector implements IRVisitor {
         //进行函数调用时，每个参数都使用一个寄存器。因此根据 RISC-V Calling Convention，
         // 函数的第一至第八个入参分别存放于 a0-7 中，剩下的参数将存放于栈中（sp 指向第一个放不下的参数），返回值放在 a0
         int paraOffset = 0;
-        if(it.args!=null){
+        if (it.args != null) {
             for (int i = 0; i < Integer.min(8, it.args.size()); ++i) {
                 addInst(new AsmMv(a(i), getReg(it.args.get(i))));
             }
@@ -212,7 +212,6 @@ public class InsSelector implements IRVisitor {
             addInst(new AsmBinaryS("slli", tmp, id, new Imm(2)));
             addInst(new AsmBinaryS("add", rd, getReg(it.ptr), tmp));
         }
-
     }
 
     @Override
@@ -287,6 +286,7 @@ public class InsSelector implements IRVisitor {
         addInst(new AsmJ(blockMap.get(it.thenBlock).label));
     }
 
+    //we do not need these instructions
     @Override
     public void visit(phiInst it) {
 
