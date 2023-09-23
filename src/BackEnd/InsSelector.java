@@ -199,8 +199,6 @@ public class InsSelector implements IRVisitor {
         if (it.res == null || it.returnType.equals(BuiltinElements.irVoidType)) return;
         addInst(new AsmMv(newVirReg(it.res), a(0)));
     }
-
-
     @Override
     public void visit(getelementptrInstr it) {
         Reg rd = newVirReg(it.res);
@@ -276,13 +274,23 @@ public class InsSelector implements IRVisitor {
 
     @Override
     public void visit(jumpInst it) {
+        //for livenessAnalysis
+        curBlock.add_succ(blockMap.get(it.toBlock));
+        blockMap.get(it.toBlock).add_pred(curBlock);
+        //
         addInst(new AsmJ(blockMap.get(it.toBlock).label));
     }
 
     @Override
     public void visit(brInst it) {
+        //for livenessAnalysis
+        curBlock.add_succ(blockMap.get(it.elseBlock));
+        blockMap.get(it.elseBlock).add_pred(curBlock);
         //beqz : branch if equals to zero
         addInst(new AsmBranch("beqz", getReg(it.cond), blockMap.get(it.elseBlock).label));
+
+        curBlock.add_succ(blockMap.get(it.thenBlock));
+        blockMap.get(it.thenBlock).add_pred(curBlock);
         addInst(new AsmJ(blockMap.get(it.thenBlock).label));
     }
 

@@ -63,6 +63,7 @@ public class AsmFunction {
             firstBlock.add_front(new AsmLi(t0, new Imm(spOffset)));
         } else {
             //调整栈指针和保存寄存器的值
+            //fp : 堆栈帧是一个包含函数参数、局部变量和其他与函数调用相关的信息的区域。fp 指向堆栈帧的底部或开始位置
             firstBlock.add_front(new AsmBinaryS("addi", fp, sp, new Imm(spOffset)));
             firstBlock.add_front(new AsmMemoryS("sw", fp, sp, spOffset - 8));
             firstBlock.add_front(new AsmMemoryS("sw", ra, sp, spOffset - 4));
@@ -89,8 +90,6 @@ public class AsmFunction {
                 }
             }
         }
-
-
     }
 
 }

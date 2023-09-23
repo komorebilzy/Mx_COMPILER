@@ -9,6 +9,7 @@ import FrontEnd.SymbolCollector;
 import IR.IRProgram;
 import MiddleEnd.IRBuilder;
 import MiddleEnd.IRPrinter;
+import Optimize.ASMRegColor;
 import Parser.MxLexer;
 import Parser.MxParser;
 import Util.Error.codgenError;
@@ -24,7 +25,7 @@ public class Compiler {
         InputStream input = System.in;
         PrintStream IROutput = null;
         PrintStream AsmOutput = System.out;
-        boolean online=true;
+        boolean online=false;
 
         if(!online) {
             input=new FileInputStream("src/text.mx");
@@ -64,7 +65,8 @@ public class Compiler {
 
         AsmModule asmModule = new AsmModule();
         new InsSelector(asmModule).visit(rootIR);
-        new RegAlloca().visit(asmModule);
+//        new RegAlloca().visit(asmModule);
+        new ASMRegColor().visit(asmModule);
         new AsmPrinter(AsmOutput).print(asmModule);
     }
 }

@@ -1,13 +1,16 @@
 package IR;
 
 import IR.Inst.*;
+import org.antlr.v4.codegen.model.ArgAction;
 
+import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.LinkedList;
 
 public class IRBasicBlock {
     public String name;
     public LinkedList<IRInst> insts = new LinkedList<>();
-    IRFunction inFunc;
+    public IRFunction inFunc;
     public boolean isFinished = false;
     public boolean isReturned=false;
 
@@ -18,6 +21,11 @@ public class IRBasicBlock {
 
     public IRBasicBlock(String name) {
         this.name = name;
+    }
+
+    public IRBasicBlock(String name,IRFunction inFunc) {
+        this.name = name;
+        this.inFunc = inFunc;
     }
 
     public String getLabel() {
@@ -42,4 +50,12 @@ public class IRBasicBlock {
     }
 
 
+    //for optimize:
+    public ArrayList<IRBasicBlock> nextBlocks=new ArrayList<>();
+
+    public ArrayList<IRBasicBlock> preBlocks=new ArrayList<>();
+
+    public BitSet dom=new BitSet(500);
+    public ArrayList<IRBasicBlock> Dom=new ArrayList<>();
+    public int number;
 }

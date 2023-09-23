@@ -2,6 +2,7 @@ package Assembly.Operand;
 
 import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class PhyReg extends Reg {
     public String name;
@@ -19,10 +20,12 @@ public class PhyReg extends Reg {
     public static final PhyReg ra = new PhyReg("ra");  //x1 返回地址
     public static final PhyReg sp = new PhyReg("sp");  //x2 栈指针 stack pointer
     public static final PhyReg gp = new PhyReg("gp");  //x3 全局指针 global pointer
+    public static final PhyReg tp = new PhyReg("tp");  //x4 线程指针
     public static final ArrayList<PhyReg> t = tRegs();  //临时量
     public static final ArrayList<PhyReg> s = sRegs();  //saved register 调用者保存数据
     public static final ArrayList<PhyReg> a = aRegs();  //函数参数/返回值
     public static final PhyReg fp = s(0);    //frame pointer 帧指针
+    public static final ArrayList<PhyReg> regs=new ArrayList<>(Arrays.asList(zero,ra,sp,gp,tp));
 
     static public PhyReg t(int i) {
         return t.get(i);

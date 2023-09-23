@@ -1,6 +1,10 @@
 package Assembly;
 
 import Assembly.Instruction.AsmInst;
+import Assembly.Operand.Reg;
+
+import java.util.ArrayList;
+import java.util.HashSet;
 
 public class AsmBlock {
     public AsmInst headInst=null,tailInst=null;
@@ -52,5 +56,19 @@ public class AsmBlock {
             ans.append("\t").append(inst.toString()).append("\n");
         }
         return ans.toString();
+    }
+
+    //for optimize
+    public ArrayList<AsmBlock> pred=new ArrayList<>(); //前序块
+    public ArrayList<AsmBlock> succ=new ArrayList<>();  //后序块
+    public HashSet<Reg> use=new HashSet<>();
+    public HashSet<Reg> def=new HashSet<>();
+
+    public void add_pred(AsmBlock it){
+        pred.add(it);
+    }
+
+    public void add_succ(AsmBlock it){
+        succ.add(it);
     }
 }
