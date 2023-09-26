@@ -63,9 +63,10 @@ public class InsSelector implements IRVisitor {
                 return reg;
             } else if (((IRConst) entity).cType == IRConst.constType.BOOL) {
                 boolean val = ((IRConst) entity).i1;
-                if (!val) return zero;
+//                if (!val) return zero;
                 Reg reg = new VirReg();
-                addInst(new AsmLi(reg, new Imm(1)));
+                if(!val) addInst(new AsmLi(reg, new Imm(0)));
+                else addInst(new AsmLi(reg, new Imm(1)));
                 return reg;
             } else if (((IRConst) entity).cType == IRConst.constType.VOID || ((IRConst) entity).cType == IRConst.constType.NULL) {
                 return zero;
