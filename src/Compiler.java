@@ -25,7 +25,7 @@ public class Compiler {
         InputStream input = System.in;
         PrintStream IROutput = null;
         PrintStream AsmOutput = System.out;
-        boolean online=false;
+        boolean online=true;
 
         if(!online) {
             input=new FileInputStream("src/text.mx");
