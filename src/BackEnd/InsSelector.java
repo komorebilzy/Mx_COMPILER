@@ -6,6 +6,7 @@ import Assembly.AsmFunction;
 import Assembly.AsmModule;
 import Assembly.Instruction.*;
 import Assembly.Operand.Imm;
+import Assembly.Operand.PhyReg;
 import Assembly.Operand.Reg;
 import Assembly.Operand.VirReg;
 import IR.Entity.IRConst;
@@ -17,13 +18,16 @@ import IR.IRProgram;
 import IR.IRVisitor;
 import IR.Inst.*;
 import IR.Type.IRClassType;
+import Optimize.ASMRegColor;
 import Util.BuiltinElements;
 import Util.Error.codgenError;
 import Util.Error.error;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import static Assembly.Operand.PhyReg.*;
+import static Assembly.Operand.PhyReg.caller;
 
 public class InsSelector implements IRVisitor {
     public AsmModule module;
@@ -31,6 +35,9 @@ public class InsSelector implements IRVisitor {
     public AsmBlock curBlock;
     public HashMap<IREntity, Reg> regMap = new HashMap<>();
     public HashMap<IRBasicBlock, AsmBlock> blockMap = new HashMap<>();
+
+    //for callee:
+    public ArrayList<Reg> calleeVirReg=new ArrayList<>();
 
     public InsSelector(AsmModule module) {
         this.module = module;
@@ -50,7 +57,7 @@ public class InsSelector implements IRVisitor {
         if (entity instanceof IRConst && ((IRConst) entity).cType != IRConst.constType.STRING) {
             if (((IRConst) entity).cType == IRConst.constType.INT) {
                 int val = ((IRConst) entity).i32;
-                if (val == 0) return zero;
+//                if (val == 0) return zero;
                 Reg reg = new VirReg();
                 addInst(new AsmLi(reg, new Imm(val)));
                 return reg;
@@ -90,6 +97,7 @@ public class InsSelector implements IRVisitor {
 
     @Override
     public void visit(IRProgram it) {
+        PhyReg.regInitial();
         it.globalVarList.forEach(vara -> vara.accept(this));
         it.funcList.forEach(func -> func.accept(this));
     }
@@ -106,6 +114,15 @@ public class InsSelector implements IRVisitor {
         }
 
         curBlock = blockMap.get(it.entry);
+
+//        for callee
+//        calleeVirReg=new ArrayList<>();
+//        for(var reg:callee){
+//            Reg newReg=new VirReg();
+//            AsmMv mv=new AsmMv(newReg,reg);
+//            calleeVirReg.add(newReg);
+//            addInst(mv);
+//        }
 
         for (int i = 0; i < 8; ++i) {
             if (i == it.params.size()) break;
@@ -183,21 +200,50 @@ public class InsSelector implements IRVisitor {
     public void visit(callInst it) {
         //参数一般都放在a【0-7】
         //进行函数调用时，每个参数都使用一个寄存器。因此根据 RISC-V Calling Convention，
-        // 函数的第一至第八个入参分别存放于 a0-7 中，剩下的参数将存放于栈中（sp 指向第一个放不下的参数），返回值放在 a0
+        //函数的第一至第八个入参分别存放于 a0-7 中，剩下的参数将存放于栈中（sp 指向第一个放不下的参数），返回值放在 a0
+//        int paraOffset = 0;
+//        if (it.args != null) {
+//            for (int i = 0; i < Integer.min(8, it.args.size()); ++i) {
+//                addInst(new AsmMv(a(i), getReg(it.args.get(i))));
+//            }
+//            for (int i = 8; i < it.args.size(); ++i) {
+//                addInst(new AsmMemoryS("sw", getReg(it.args.get(i)), sp, paraOffset));
+//                paraOffset += 4;
+//            }
+//        }
+//        curFunction.paraOffset = Integer.max(paraOffset, curFunction.paraOffset);
+//        addInst(new AsmCall(it.funcName));
+//        if (it.res == null || it.returnType.equals(BuiltinElements.irVoidType)) return;
+//        addInst(new AsmMv(newVirReg(it.res), gp));
+        ArrayList<Reg> paras=new ArrayList<>();
+        if (it.args != null) {
+            for (int i = 0; i < Integer.min(8, it.args.size()); ++i) {
+                 paras.add(getReg(it.args.get(i)));
+            }
+            for (int i = 8; i < it.args.size(); ++i) {
+                paras.add(getReg(it.args.get(i)));
+            }
+        }
+
+        AsmCall CallInst=new AsmCall(it.funcName);
+        addInst(CallInst);
+        for (var call : caller) {
+            curBlock.insert_before(CallInst, new AsmMemoryS("sw", call, fp, -(curFunction.offset += 4)));
+            curBlock.insert_after(CallInst, new AsmMemoryS("lw", call, fp, -curFunction.offset));
+        }
         int paraOffset = 0;
         if (it.args != null) {
             for (int i = 0; i < Integer.min(8, it.args.size()); ++i) {
-                addInst(new AsmMv(a(i), getReg(it.args.get(i))));
+                curBlock.insert_before(CallInst,new AsmMv(a(i), paras.get(i)));
             }
             for (int i = 8; i < it.args.size(); ++i) {
-                addInst(new AsmMemoryS("sw", getReg(it.args.get(i)), sp, paraOffset));
+                curBlock.insert_before(CallInst,new AsmMemoryS("sw", paras.get(i) , sp, paraOffset));
                 paraOffset += 4;
             }
         }
         curFunction.paraOffset = Integer.max(paraOffset, curFunction.paraOffset);
-        addInst(new AsmCall(it.funcName));
         if (it.res == null || it.returnType.equals(BuiltinElements.irVoidType)) return;
-        addInst(new AsmMv(newVirReg(it.res), a(0)));
+        curBlock.insert_after(CallInst,new AsmMv(newVirReg(it.res), a(0)));
     }
     @Override
     public void visit(getelementptrInstr it) {
@@ -269,6 +315,10 @@ public class InsSelector implements IRVisitor {
     public void visit(retInst it) {
         //当函数执行完成并准备返回时，将结果存储到 a0 寄存器中，然后使用 ret 指令跳转回调用者。调用者可以从 a0 寄存器中读取返回值。
         if (it.value != BuiltinElements.irVoidConst) addInst(new AsmMv(a(0), getReg(it.value)));
+//        for(int i=0;i<calleeVirReg.size();++i){
+//            Reg reg=callee.get(i);
+//            addInst(new AsmMv(reg,calleeVirReg.get(i)));
+//        }
         addInst(new AsmRet());
     }
 

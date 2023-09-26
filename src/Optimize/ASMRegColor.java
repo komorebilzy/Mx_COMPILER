@@ -5,12 +5,9 @@ import Assembly.AsmFunction;
 import Assembly.AsmModule;
 import Assembly.Instruction.*;
 import Assembly.Operand.*;
-import jdk.jfr.Enabled;
-import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Pair;
 
 import java.util.*;
-import java.util.jar.JarEntry;
 
 import static Assembly.Operand.PhyReg.*;
 
@@ -55,60 +52,73 @@ public class ASMRegColor {
     HashMap<Reg, Integer> color = new HashMap<>();
     HashSet<Reg> newTmp = new HashSet<>();
     //for optimize:
-    public ArrayList<PhyReg> caller = new ArrayList<>();
-    public ArrayList<PhyReg> callee = new ArrayList<>();
-    public ArrayList<Integer> OKColor = new ArrayList<>();
+//    public ArrayList<PhyReg> caller = new ArrayList<>();
+//    public ArrayList<PhyReg> callee = new ArrayList<>();
+//    public ArrayList<Integer> OKColor = new ArrayList<>();
+    public boolean isInitialized=false;
 
     public void visit(AsmModule it) {
-        regInitial();
         for (var func : it.functions) {
+            isInitialized=false;
             curFunction=func;
             visit(func);
         }
     }
 
-    void addRegCall(int l, int r, ArrayList<PhyReg> regs, ArrayList<PhyReg> call) {
-        for (int i = l; i <= r; ++i) {
-            call.add(regs.get(i));
-        }
-    }
-
-    public void regInitial() {
-        //regs：ArrayList<PhyReg> index对应i 对应32个寄存器
-        regs.addAll(t);
-        regs.addAll(s);
-        regs.addAll(a);
-        caller.clear();
-        callee.clear();
-        caller.add(PhyReg.ra);
-        addRegCall(0, 2, PhyReg.t, caller);
-        addRegCall(0, 7, PhyReg.a, caller);
-        addRegCall(3, 6, PhyReg.t, caller);
-        callee.add(PhyReg.sp);
-        addRegCall(0, 11, PhyReg.s, callee);
-        for (int i = 5; i <= 7; ++i) OKColor.add(i);
-        for (int i = 9; i <= 31; ++i) OKColor.add(i);
-    }
+//    void addRegCall(int l, int r, ArrayList<PhyReg> regs, ArrayList<PhyReg> call) {
+//        for (int i = l; i <= r; ++i) {
+//            call.add(regs.get(i));
+//        }
+//    }
+//    HashSet<PhyReg> allRegs = new HashSet<>();
+//    public void regInitial() {
+//        allRegs.addAll(PhyReg.s);
+//        allRegs.addAll(PhyReg.t);
+//        allRegs.addAll(PhyReg.a);
+//        allRegs.add(PhyReg.zero);
+//        allRegs.add(PhyReg.ra);
+//        allRegs.add(PhyReg.sp);
+//        allRegs.add(PhyReg.gp);
+//        allRegs.add(PhyReg.tp);
+//
+//        //regs：ArrayList<PhyReg> index对应i 对应32个寄存器
+//        for(int i=0;i<=2;++i) regs.add(t(i));
+//        for(int i=0;i<=1;++i) regs.add(s(i));
+//        for(int i=0;i<=7;++i) regs.add(a(i));
+//        for(int i=2;i<=11;++i) regs.add(s(i));
+//        for(int i=3;i<=6;++i) regs.add(t(i));
+//        caller.clear();
+//        callee.clear();
+//        caller.add(PhyReg.ra);
+//        addRegCall(0, 2, PhyReg.t, caller);
+//        addRegCall(0, 7, PhyReg.a, caller);
+//        addRegCall(3, 6, PhyReg.t, caller);
+//        callee.add(PhyReg.sp);
+//        addRegCall(0, 11, PhyReg.s, callee);
+//        for (int i = 5; i <= 7; ++i) OKColor.add(i);
+//        for (int i = 9; i <= 31; ++i) OKColor.add(i);
+//    }
 
     public void visit(AsmFunction it) {
         Initialize();
-        LivenessAnalysis();
-        Build();
-        MakeWorkList();
         while (true) {
-            if (!simplifyWorkList.isEmpty()) Simplify();
-            else if (!workListMoves.isEmpty()) Coalesce();
-            else if (!freezeWorkList.isEmpty()) Freeze();
-            else if (!spillWorkList.isEmpty()) SelectSpill();
-            else break;
-        }
-        AssignColors();
-        if (!spilledNodes.isEmpty()) {
+            LivenessAnalysis();
+            Build();
+            MakeWorkList();
+            while (true) {
+                if (!simplifyWorkList.isEmpty()) Simplify();
+                else if (!workListMoves.isEmpty()) Coalesce();
+                else if (!freezeWorkList.isEmpty()) Freeze();
+                else if (!spillWorkList.isEmpty()) SelectSpill();
+                else break;
+            }
+            AssignColors();
+            if (spilledNodes.isEmpty()) break;
             ReWrite();
-            visit(it);
         }
         //将color中的节点中的reg分配到对应的26个可以使用的物理寄存器上
         allocaByColor(it);
+        it.savecall();
         //func的finish：计算栈指针
         it.finish();
     }
@@ -142,21 +152,42 @@ public class ASMRegColor {
 
 
     public void Initialize() {
+        setDEF = new HashMap<>();
+        setUse = new HashMap<>();
+        setIn = new HashMap<>();
+        setOut = new HashMap<>();
+        initial = new HashSet<>();
+
+        adjSet = new HashSet<>();
+        precolored = new HashSet<>();
+        degree = new HashMap<>();
+
+        adjList = new HashMap<>();
+        moveList = new HashMap<>();
+
+        workListMoves = new HashSet<>();
+        activeMoves = new HashSet<>();
+        frozenMoves = new HashSet<>();
+        constrainedMoves = new HashSet<>();
+        coalescesMoves = new HashSet<>();
+
+        simplifyWorkList = new HashSet<>();
+        freezeWorkList = new HashSet<>();
+        spillWorkList = new HashSet<>();
+
+        coalescedNodes = new HashSet<>();
+        coloredNodes = new HashSet<>();
+        spilledNodes = new HashSet<>();
+
+        selectStack = new Stack<>();
+        alias = new HashMap<>();
+        color = new HashMap<>();
+        newTmp = new HashSet<>();
+
         setPrecolored();
         getUseDef();
         for (var uses : setUse.values()) initial.addAll(uses);
         for (var defs : setDEF.values()) initial.addAll(defs);
-
-        HashSet<PhyReg> allRegs = new HashSet<>();
-        allRegs.addAll(PhyReg.s);
-        allRegs.addAll(PhyReg.t);
-        allRegs.addAll(PhyReg.a);
-        allRegs.add(PhyReg.zero);
-        allRegs.add(PhyReg.ra);
-        allRegs.add(PhyReg.sp);
-        allRegs.add(PhyReg.gp);
-        allRegs.add(PhyReg.tp);
-
         initial.removeAll(allRegs);
         for (var reg : initial) {
             degree.put(reg, 0);
@@ -173,7 +204,8 @@ public class ASMRegColor {
         singlePrecolored(PhyReg.sp, 2);
         singlePrecolored(PhyReg.gp, 3);
         singlePrecolored(PhyReg.tp, 4);
-        singlePrecolored(PhyReg.sp, 8);
+        //debug:这里是s0或者fp 而不是前面已经加过的sp！！！！
+        singlePrecolored(PhyReg.s(0), 8);
         for (int i = 0; i <= 2; ++i) singlePrecolored(PhyReg.t(i), 5 + i);
         singlePrecolored(PhyReg.s(1), 9);
         for (int i = 0; i <= 7; ++i) singlePrecolored(PhyReg.a(i), 10 + i);
@@ -195,9 +227,9 @@ public class ASMRegColor {
             block.def = new HashSet<>();
             block.use = new HashSet<>();
             for (var inst = block.headInst; inst != null; inst = inst.next) {
-                inst.def = new HashSet<>();
-                inst.use = new HashSet<>();
                 analysis(inst);
+                //我们可以把 use[𝑝] ∪ (use[𝑛] − def [𝑝]) 视为 𝑝𝑛 的等效 use
+                //把 def [𝑛] ∪ def [𝑝] 视为 𝑝𝑛 的等效 def
                 for (var use : inst.use) {
                     if (!block.def.contains(use)) block.use.add(use);
                 }
@@ -223,16 +255,22 @@ public class ASMRegColor {
         } else if (inst instanceof AsmLi i) {
             inst.def.add(i.rd);
         } else if (inst instanceof AsmMemoryS i) {
+            //debug: i have forgotten the difference between sw and lw
             inst.use.add(i.rs);
-            inst.def.add(i.rd);
+            if(i.op.equals("sw")){
+                inst.use.add(i.rd);
+            }
+            else inst.def.add(i.rd);
         } else if (inst instanceof AsmMv i) {
             inst.use.add(i.rs);
             inst.def.add(i.rd);
         } else if (inst instanceof AsmBranch i) {
             if (i.cond instanceof Reg r) inst.use.add(r);
-        } else if (inst instanceof AsmCall) {
-            inst.def.addAll(caller);
         }
+//        else if (inst instanceof AsmCall) {
+//            inst.def.addAll(caller);
+//            inst.use.addAll(callee);
+//        }
     }
 
 
@@ -388,6 +426,7 @@ public class ASMRegColor {
         }
     }
 
+    //获取别名 并查集
     public Reg getAlias(Reg n) {
         if (coalescedNodes.contains(n)) return getAlias(alias.get(n));
         else return n;
@@ -504,7 +543,6 @@ public class ASMRegColor {
 
     public void ReWrite() {
         for (var block : curFunction.blocks) {
-            LinkedList<AsmInst> newStmts = new LinkedList<>();
             for (var inst = block.headInst; inst != null; inst = inst.next) {
                 curBlock = block;
                 visit(inst);
@@ -519,7 +557,7 @@ public class ASMRegColor {
         }
     }
 
-    private Operand allocatePhyReg(AsmInst ins, Operand operand, PhyReg reg, boolean isLoad) {
+    private Operand allocaFP(AsmInst ins, Operand operand, PhyReg reg, boolean isLoad) {
         if (operand instanceof VirReg v) {
             if (!curFunction.containsReg(v)) curFunction.allocate(v);
             int offset = curFunction.getVarRegOffset(v);
@@ -556,41 +594,41 @@ public class ASMRegColor {
 
     public void visit(AsmBinaryS it) {
         //先load后store    a=a+1
-        if (spilledNodes.contains((Reg) it.rs1)) it.rs1 = allocatePhyReg(it, it.rs1, t(0), true);
-        if (spilledNodes.contains((Reg) it.rs2)) it.rs2 = allocatePhyReg(it, it.rs2, t(1), true);
-        if (spilledNodes.contains((Reg) it.rd)) it.rd = allocatePhyReg(it, it.rd, t(2), false);
+        if (spilledNodes.contains((Reg) it.rs1)) it.rs1 = allocaFP(it, it.rs1, t(0), true);
+        if (it.rs2 instanceof Reg && spilledNodes.contains((Reg) it.rs2)) it.rs2 = allocaFP(it, it.rs2, t(1), true);
+        if (spilledNodes.contains((Reg) it.rd)) it.rd = allocaFP(it, it.rd, t(2), false);
     }
 
     public void visit(AsmLi it) {
-        if (spilledNodes.contains(it.rd)) it.rd = (Reg) allocatePhyReg(it, it.rd, t(0), false);
+        if (spilledNodes.contains(it.rd)) it.rd = (Reg) allocaFP(it, it.rd, t(0), false);
     }
 
     public void visit(AsmLa it) {
-        if (spilledNodes.contains(it.rd)) it.rd = (Reg) allocatePhyReg(it, it.rd, t(0), false);
+        if (spilledNodes.contains(it.rd)) it.rd = (Reg) allocaFP(it, it.rd, t(0), false);
     }
 
     public void visit(AsmBranch it) {
-        if (spilledNodes.contains((Reg) it.cond)) it.cond = allocatePhyReg(it, it.cond, t(0), true);
+        if (spilledNodes.contains((Reg) it.cond)) it.cond = allocaFP(it, it.cond, t(0), true);
     }
 
     public void visit(AsmMemoryS it) {
         if (it.op.equals("sw")) {
-            if (spilledNodes.contains(it.rs)) it.rs = (Reg) allocatePhyReg(it, it.rs, t(0), true);
-            if (spilledNodes.contains(it.rd)) it.rd = (Reg) allocatePhyReg(it, it.rd, t(1), true);
+            if (spilledNodes.contains(it.rs)) it.rs = (Reg) allocaFP(it, it.rs, t(0), true);
+            if (spilledNodes.contains(it.rd)) it.rd = (Reg) allocaFP(it, it.rd, t(1), true);
         } else {
-            if (spilledNodes.contains(it.rs)) it.rs = (Reg) allocatePhyReg(it, it.rs, t(0), true);
-            if (spilledNodes.contains( it.rd)) it.rd = (Reg) allocatePhyReg(it, it.rd, t(1), false);
+            if (spilledNodes.contains(it.rs)) it.rs = (Reg) allocaFP(it, it.rs, t(0), true);
+            if (spilledNodes.contains( it.rd)) it.rd = (Reg) allocaFP(it, it.rd, t(1), false);
         }
     }
 
     public void visit(AsmMv it) {
-        if (spilledNodes.contains( it.rd)) it.rd = (Reg) allocatePhyReg(it, it.rd, t(0), false);
-        if (spilledNodes.contains( it.rs)) it.rs = (Reg) allocatePhyReg(it, it.rs, t(1), true);
+        if (spilledNodes.contains( it.rd)) it.rd = (Reg) allocaFP(it, it.rd, t(0), false);
+        if (spilledNodes.contains( it.rs)) it.rs = (Reg) allocaFP(it, it.rs, t(1), true);
     }
 
     public void visit(AsmCmpS it) {
-        if (spilledNodes.contains((Reg) it.rd)) it.rd = allocatePhyReg(it, it.rd, t(0), false);
-        if (spilledNodes.contains((Reg) it.rs)) it.rs = allocatePhyReg(it, it.rs, t(1), true);
+        if (spilledNodes.contains((Reg) it.rd)) it.rd = allocaFP(it, it.rd, t(0), false);
+        if (spilledNodes.contains((Reg) it.rs)) it.rs = allocaFP(it, it.rs, t(1), true);
     }
 
 

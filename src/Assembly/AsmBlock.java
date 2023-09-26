@@ -42,7 +42,7 @@ public class AsmBlock {
     }
 
     public void insert_after(AsmInst inst,AsmInst inserted){
-        if(inst.next==null) tailInst=inst;
+        if(inst.next==null) tailInst=inserted;
         else inst.next.prev=inserted;
         inserted.next=inst.next;
         inserted.prev=inst;

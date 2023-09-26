@@ -46,3 +46,4 @@ output.s.source
 patch.sh
 patch2.sh
 test.bash
+testcmp

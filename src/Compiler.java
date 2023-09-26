@@ -32,13 +32,13 @@ public class Compiler {
             IROutput = new PrintStream(new FileOutputStream("test.ll"));
             AsmOutput = new PrintStream(new FileOutputStream("test.s"));
         }
-        try {
+//        try {
             compile(input,IROutput,AsmOutput);
-        }
-        catch (Error err){
-            System.err.println(err.toString());
-            throw new RuntimeException();
-        }
+//        }
+//        catch (Error err){
+//            System.err.println(err.toString());
+//            throw new RuntimeException();
+//        }
     }
 
     public static void compile(InputStream input, PrintStream IROutput, PrintStream AsmOutput) throws Exception {

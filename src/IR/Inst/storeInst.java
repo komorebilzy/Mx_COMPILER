@@ -15,6 +15,7 @@ public class storeInst extends IRInst{
         super(par);
         this.pointer=pointer;
         this.value=value;
+        if(par==null) return;
         for(var inst:par.inFunc.allocas){
             if(inst.res.equals(pointer)){
                 if(!par.inFunc.storeIns.containsKey(pointer.getValue())){

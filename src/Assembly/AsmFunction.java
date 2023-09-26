@@ -46,6 +46,34 @@ public class AsmFunction {
         return stack.containsKey(reg);
     }
 
+    public void savecall() {
+        AsmBlock firstBlock = blocks.getFirst();
+        HashMap<Reg, Integer> mapp = new HashMap<>();
+        for (var call1 : callee) {
+            firstBlock.add_front(new AsmMemoryS("sw", call1, fp, -(offset += 4)));
+            mapp.put(call1, offset);
+        }
+        for (var block : blocks) {
+            if (block.isReturned) {
+                AsmInst inst=block.tailInst;
+                for (var call1 : callee) {
+                    block.insert_before(inst, new AsmMemoryS("lw", call1, fp, -mapp.get(call1)));
+                }
+            }
+        }
+//        for (var block : blocks) {
+//            for (var inst = block.headInst; inst != null; inst = inst.next) {
+//                if (inst instanceof AsmCall) {
+//                    for (var call : caller) {
+//                        block.insert_before(inst, new AsmMemoryS("sw", call, fp, -(offset += 4)));
+//                        block.insert_after(inst, new AsmMemoryS("lw", call, fp, -offset));
+//                    }
+//                    block.insert_after(inst,new AsmMv(gp,a(0)));
+//                }
+//            }
+//        }
+    }
+
     public void finish() {
         int allOffset = offset + paraOffset;
         //sp 始终保持 16 字节对齐

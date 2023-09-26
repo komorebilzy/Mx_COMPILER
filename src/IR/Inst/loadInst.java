@@ -18,6 +18,7 @@ public class loadInst extends IRInst{
         this.res=res;
         this.pointer=point;
         this.type=res.type;
+        if(par==null) return;
         for(var inst:par.inFunc.allocas){
             if(inst.res.equals(point)){
                 if(!par.inFunc.loadIns.containsKey(res.getValue()))

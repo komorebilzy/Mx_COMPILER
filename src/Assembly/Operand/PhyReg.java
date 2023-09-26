@@ -3,6 +3,7 @@ package Assembly.Operand;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 
 public class PhyReg extends Reg {
     public String name;
@@ -61,6 +62,43 @@ public class PhyReg extends Reg {
             aRegs.add(new PhyReg("a" + i));
         }
         return aRegs;
+    }
+
+    public static ArrayList<PhyReg> caller = new ArrayList<>();
+    public static ArrayList<PhyReg> callee = new ArrayList<>();
+    public static ArrayList<Integer> OKColor = new ArrayList<>();
+    public static HashSet<PhyReg> allRegs = new HashSet<>();
+    public static void addRegCall(int l, int r, ArrayList<PhyReg> regs, ArrayList<PhyReg> call) {
+        for (int i = l; i <= r; ++i) {
+            call.add(regs.get(i));
+        }
+    }
+    public static void regInitial() {
+        allRegs.addAll(PhyReg.s);
+        allRegs.addAll(PhyReg.t);
+        allRegs.addAll(PhyReg.a);
+        allRegs.add(PhyReg.zero);
+        allRegs.add(PhyReg.ra);
+        allRegs.add(PhyReg.sp);
+        allRegs.add(PhyReg.gp);
+        allRegs.add(PhyReg.tp);
+
+        //regs：ArrayList<PhyReg> index对应i 对应32个寄存器
+        for(int i=0;i<=2;++i) regs.add(t(i));
+        for(int i=0;i<=1;++i) regs.add(s(i));
+        for(int i=0;i<=7;++i) regs.add(a(i));
+        for(int i=2;i<=11;++i) regs.add(s(i));
+        for(int i=3;i<=6;++i) regs.add(t(i));
+        caller.clear();
+        callee.clear();
+        caller.add(PhyReg.ra);
+        addRegCall(0, 2, PhyReg.t, caller);
+        addRegCall(0, 7, PhyReg.a, caller);
+        addRegCall(3, 6, PhyReg.t, caller);
+        callee.add(PhyReg.sp);
+        addRegCall(0, 11, PhyReg.s, callee);
+        for (int i = 5; i <= 7; ++i) OKColor.add(i);
+        for (int i = 9; i <= 31; ++i) OKColor.add(i);
     }
 
 
