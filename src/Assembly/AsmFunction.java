@@ -50,6 +50,7 @@ public class AsmFunction {
         AsmBlock firstBlock = blocks.getFirst();
         HashMap<Reg, Integer> mapp = new HashMap<>();
         for (var call1 : callee) {
+            if(call1.equals(sp)||call1.equals(fp)) continue;
             firstBlock.add_front(new AsmMemoryS("sw", call1, fp, -(offset += 4)));
             mapp.put(call1, offset);
         }
@@ -57,6 +58,7 @@ public class AsmFunction {
             if (block.isReturned) {
                 AsmInst inst=block.tailInst;
                 for (var call1 : callee) {
+                    if(call1.equals(sp)||call1.equals(fp)) continue;
                     block.insert_before(inst, new AsmMemoryS("lw", call1, fp, -mapp.get(call1)));
                 }
             }
